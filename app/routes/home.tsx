@@ -38,11 +38,13 @@ export async function loader({
 
   return {
     title: _sampleSize(titles)[0],
-    adjective: adjective.toLocaleLowerCase(),
+    adjective: adjective,
     left: leftChick,
     right: rightChick,
   }
 }
+
+export async function action() {}
 
 export default function Home({
   loaderData: { title, adjective, left, right },
