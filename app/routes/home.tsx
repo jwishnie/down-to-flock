@@ -3,8 +3,10 @@ import type { Route } from './+types/home'
 
 import { list as listChix, type ListBlobResultBlob } from '@vercel/blob'
 import { kv } from '@vercel/kv'
+import _range from 'lodash-es/range'
 import _sampleSize from 'lodash-es/sampleSize'
 import { useEffect } from 'react'
+import { redirect } from 'react-router'
 import adjectives from '~/adjectives'
 import titles from '~/titles'
 
@@ -21,13 +23,24 @@ const getChix = async function () {
   return fromStore
 }
 
-export async function loader({ params }: Route.LoaderArgs) {
-  const chix = _sampleSize(await getChix(), 2)
+export async function loader({
+  params: { adjective, left, right },
+}: Route.LoaderArgs) {
+  const chix = await getChix()
+
+  const leftChick: ListBlobResultBlob | undefined = chix[parseInt(left!)]
+  const rightChick: ListBlobResultBlob | undefined = chix[parseInt(right!)]
+  if (!(adjective && left && right && leftChick && rightChick)) {
+    const adj = _sampleSize(adjectives)[0].toLocaleLowerCase()
+    const [leftI, rightI] = _sampleSize(_range(chix.length - 1), 2)
+    return redirect(`/${adj}/${leftI}/${rightI}`)
+  }
+
   return {
     title: _sampleSize(titles)[0],
-    adjective: _sampleSize(adjectives)[0],
-    left: chix[0],
-    right: chix[1],
+    adjective: adjective.toLocaleLowerCase(),
+    left: leftChick,
+    right: rightChick,
   }
 }
 
@@ -37,5 +50,11 @@ export default function Home({
   useEffect(() => {
     document.title = title
   })
-  return <BattleBoks adjective={adjective} left={left} right={right} />
+  return (
+    <BattleBoks
+      adjective={adjective.toLocaleLowerCase()}
+      left={left}
+      right={right}
+    />
+  )
 }
