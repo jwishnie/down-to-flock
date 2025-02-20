@@ -7,7 +7,7 @@ export async function loader() {
   const error = (await migrator.migrateTo(NO_MIGRATIONS)).error
 
   const status = error ? 500 : 200
-  const resp = { action: 'up', ...(!!error && { error: error }) }
+  const resp = { action: 'down', ...(!!error && { error: error }) }
 
   return Response.json(resp, {
     status,
