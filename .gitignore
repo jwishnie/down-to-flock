@@ -7,3 +7,4 @@
 
 # vercel
 .vercel
+.env*.local
