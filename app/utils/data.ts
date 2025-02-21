@@ -47,7 +47,7 @@ interface Votes {
   adjective: string
   left: string
   right: string
-  vote: boolean
+  left_wins: boolean
 }
 
 interface DbSchema {
