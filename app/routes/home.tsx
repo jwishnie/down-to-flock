@@ -5,10 +5,12 @@ import { list as listChix, type ListBlobResultBlob } from '@vercel/blob'
 import { kv } from '@vercel/kv'
 import _range from 'lodash-es/range'
 import _sampleSize from 'lodash-es/sampleSize'
+import _toInteger from 'lodash-es/toInteger'
 import { useEffect } from 'react'
 import { redirect } from 'react-router'
 import adjectives from '~/adjectives'
 import titles from '~/titles'
+import { db, VOTES_TABLE } from '~/utils/db'
 
 const CHIX_KEY = 'chix'
 
@@ -44,7 +46,26 @@ export async function loader({
   }
 }
 
-export async function action() {}
+export async function action({
+  request,
+  params: { adjective, left, right },
+}: Route.ActionArgs) {
+  const formData = await request.formData()
+  const vote = formData.get('vote')
+  const chix = await getChix()
+  console.dir(
+    await db
+      .insertInto(VOTES_TABLE)
+      .values({
+        adjective,
+        left: chix[_toInteger(left)].url,
+        right: chix[_toInteger(right)].url,
+        left_wins: vote === 'l',
+      } as any)
+      .execute()
+  )
+  return redirect('/')
+}
 
 export default function Home({
   loaderData: { title, adjective, left, right },
