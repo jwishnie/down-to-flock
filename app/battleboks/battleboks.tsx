@@ -24,12 +24,12 @@ export function BattleBoks({
       <main className="flex justify-center gap-x-5 pt-16 pb-4">
         <img
           src={left.url}
-          className="max-w-lg"
+          className="max-w-lg cursor-pointer"
           onClick={() => vote('l' as const)}
         />
         <img
           src={right.url}
-          className="max-w-lg"
+          className="max-w-lg cursor-pointer"
           onClick={() => vote('r' as const)}
         />
       </main>
