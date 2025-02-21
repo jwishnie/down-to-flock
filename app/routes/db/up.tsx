@@ -1,4 +1,4 @@
-import { db, getMigrator } from '~/utils/db'
+import { db, getMigrator } from '~/utils/data'
 
 const migrator = getMigrator({ db })
 

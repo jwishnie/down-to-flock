@@ -8,6 +8,9 @@ import {
   type MigratorProps,
 } from 'kysely'
 
+import { list as listChix, type ListBlobResultBlob } from '@vercel/blob'
+import { kv } from '@vercel/kv'
+
 export const VOTES_TABLE = 'Votes'
 
 const dbMigrationProvider: MigrationProvider = {
@@ -40,6 +43,7 @@ export const getMigrator = (props: Omit<MigratorProps, 'provider'>) =>
 
 interface Votes {
   id: GeneratedAlways<string>
+  timestamp: GeneratedAlways<Date>
   adjective: string
   left: string
   right: string
@@ -51,3 +55,15 @@ interface DbSchema {
 }
 
 export const db = createKysely<DbSchema>()
+
+const CHIX_KEY = 'chix'
+export const getChix = async function () {
+  const fromStore = (await kv.get(CHIX_KEY)) as ListBlobResultBlob[] | null
+  if (!fromStore) {
+    const chix = (await listChix()).blobs
+    await kv.set(CHIX_KEY, chix, { ex: 3600 })
+    return chix
+  }
+
+  return fromStore
+}

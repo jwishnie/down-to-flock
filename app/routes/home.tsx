@@ -1,8 +1,7 @@
 import { BattleBoks } from '~/battleboks/battleboks'
 import type { Route } from './+types/home'
 
-import { list as listChix, type ListBlobResultBlob } from '@vercel/blob'
-import { kv } from '@vercel/kv'
+import type { ListBlobResultBlob } from '@vercel/blob'
 import _range from 'lodash-es/range'
 import _sampleSize from 'lodash-es/sampleSize'
 import _toInteger from 'lodash-es/toInteger'
@@ -10,20 +9,7 @@ import { useEffect } from 'react'
 import { redirect } from 'react-router'
 import adjectives from '~/adjectives'
 import titles from '~/titles'
-import { db, VOTES_TABLE } from '~/utils/db'
-
-const CHIX_KEY = 'chix'
-
-const getChix = async function () {
-  const fromStore = (await kv.get(CHIX_KEY)) as ListBlobResultBlob[] | null
-  if (!fromStore) {
-    const chix = (await listChix()).blobs
-    await kv.set(CHIX_KEY, chix, { ex: 3600 })
-    return chix
-  }
-
-  return fromStore
-}
+import { db, getChix, VOTES_TABLE } from '~/utils/data'
 
 export async function loader({
   params: { adjective, left, right },
@@ -53,17 +39,17 @@ export async function action({
   const formData = await request.formData()
   const vote = formData.get('vote')
   const chix = await getChix()
-  console.dir(
-    await db
-      .insertInto(VOTES_TABLE)
-      .values({
-        adjective,
-        left: chix[_toInteger(left)].url,
-        right: chix[_toInteger(right)].url,
-        left_wins: vote === 'l',
-      } as any)
-      .execute()
-  )
+
+  await db
+    .insertInto(VOTES_TABLE)
+    .values({
+      adjective,
+      left: chix[_toInteger(left)].url,
+      right: chix[_toInteger(right)].url,
+      left_wins: vote === 'l',
+    } as any)
+    .execute()
+
   return redirect('/')
 }
 
