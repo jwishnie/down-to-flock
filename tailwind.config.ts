@@ -4,6 +4,9 @@ export default {
   content: ['./app/**/{**,.client,.server}/**/*.{js,jsx,ts,tsx}'],
   theme: {
     extend: {
+      transitionProperty: {
+        width: 'width',
+      },
       fontFamily: {
         sans: [
           '"Inter"',
