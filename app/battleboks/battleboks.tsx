@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { useLocation, useSubmit } from 'react-router'
 
 const bokClass =
-  'flex-1 cursor-pointer transition delay-75 duration-300 ease-in-out hover:scale-105'
+  'max-w-lg cursor-pointer transition delay-75 duration-300 ease-in-out hover:scale-105'
 
 export function BattleBoks({
   adjective,
