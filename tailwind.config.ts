@@ -4,8 +4,14 @@ export default {
   content: ['./app/**/{**,.client,.server}/**/*.{js,jsx,ts,tsx}'],
   theme: {
     extend: {
-      transitionProperty: {
-        width: 'width',
+      keyframes: {
+        fadeGone: {
+          '0%': { width: '50px' },
+          '100%': { width: '0px', height: '0px', display: 'none' },
+        },
+      },
+      animation: {
+        'fade-gone': 'fadeGone 1s ease-in-out infinite',
       },
       fontFamily: {
         sans: [

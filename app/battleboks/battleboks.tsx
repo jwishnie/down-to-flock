@@ -19,7 +19,8 @@ export function BattleBoks({
 
   let [rvote, setRVote] = useState(false)
   let [lvote, setLVote] = useState(false)
-  const fadeOut = ' transition-[width] max-w-0 ease-in duration-1000'
+  const fadeOut =
+    'transition-all transition max-w-0 scale-0 opacity-0 ease-in duration-300'
   const slideIn = ''
 
   const vote = async function (vote: 'l' | 'r') {
@@ -33,7 +34,7 @@ export function BattleBoks({
         setRVote(false)
         setLVote(false)
       })
-    }, 1100)
+    }, 330)
   }
 
   return (
