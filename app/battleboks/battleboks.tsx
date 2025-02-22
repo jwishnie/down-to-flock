@@ -20,8 +20,8 @@ export function BattleBoks({
   let [rvote, setRVote] = useState(false)
   let [lvote, setLVote] = useState(false)
   const fadeOut = 'transition-opacity opacity-0 ease-in duration-300'
-  const rslideIn = 'transition-transform -translate-x-1/2'
-  const lslideIn = 'transition-transform translate-x-1/2'
+  const rslideIn = 'transition-transform max-sm:-translate-y-full sm:-translate-x-1/2'
+  const lslideIn = 'sm:transition-transform sm:translate-x-1/2'
 
   const vote = async function (vote: 'l' | 'r') {
     if (vote === 'l') {
@@ -43,14 +43,22 @@ export function BattleBoks({
         Which is more {adjective}?
       </div>
       <main className="flex flex-wrap justify-center gap-x-2 pt-16 px-2 pb-4">
-        <div className={`flex-none sm:flex-1  ${lvote ? lslideIn : rvote ? fadeOut : ''}`}>
+        <div
+          className={`flex-none sm:flex-1  ${
+            lvote ? lslideIn : rvote ? fadeOut : ''
+          }`}
+        >
           <img
             src={left.url}
             className={`${bokClass}`}
             onClick={() => vote('l' as const)}
           />
         </div>
-        <div className={`flex-none sm:flex-1 ${rvote ? rslideIn : lvote ? fadeOut : ''}`}>
+        <div
+          className={`flex-none sm:flex-1 ${
+            rvote ? rslideIn : lvote ? fadeOut : ''
+          }`}
+        >
           <img
             src={right.url}
             className={`${bokClass}`}
