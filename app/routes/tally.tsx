@@ -19,7 +19,7 @@ export default function Tally({ loaderData: { votes } }: Route.ComponentProps) {
     </div>
   ))
   return (
-    <div>
+    <div className='px-2'>
       <div className="flex items-center justify-center py-16">Results</div>
       <div>{voteItems}</div>
     </div>
