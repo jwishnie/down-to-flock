@@ -57,13 +57,15 @@ interface DbSchema {
 export const db = createKysely<DbSchema>()
 
 const CHIX_KEY = 'chix'
+let chix: ListBlobResultBlob[] | null = null
 export const getChix = async function () {
-  const fromStore = (await kv.get(CHIX_KEY)) as ListBlobResultBlob[] | null
-  if (!fromStore) {
-    const chix = (await listChix()).blobs
-    await kv.set(CHIX_KEY, chix, { ex: 3600 })
-    return chix
+  if (!chix) {
+    chix = (await kv.get(CHIX_KEY)) as ListBlobResultBlob[] | null
+    if (!chix) {
+      chix = (await listChix()).blobs
+      await kv.set(CHIX_KEY, chix, { ex: 3600 })
+    }
   }
 
-  return fromStore
+  return chix
 }

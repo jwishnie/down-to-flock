@@ -11,15 +11,22 @@ export async function loader() {
 }
 
 export default function Tally({ loaderData: { votes } }: Route.ComponentProps) {
-  const voteItems = votes.map(({ adjective, left, right, left_wins }) => (
-    <div className="flex items-center justify-center gap-x-5 py-6 w-full">
-      <img className="max-w-32" src={left_wins ? left : right} />
-      <div className="w-fit text-center min-w-70">is more {adjective} than</div>
-      <img className="max-w-32" src={left_wins ? right : left} />
-    </div>
-  ))
+  const voteItems = votes.map(
+    ({ adjective, left, right, left_wins }, index) => (
+      <div
+        key={`${index}`}
+        className="flex items-center justify-center gap-x-5 py-6 w-full"
+      >
+        <img className="max-w-32" src={left_wins ? left : right} />
+        <div className="w-fit text-center min-w-70">
+          is more {adjective} than
+        </div>
+        <img className="max-w-32" src={left_wins ? right : left} />
+      </div>
+    )
+  )
   return (
-    <div className='px-2'>
+    <div className="px-2">
       <div className="flex items-center justify-center py-16">Results</div>
       <div>{voteItems}</div>
     </div>

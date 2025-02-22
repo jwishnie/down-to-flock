@@ -5,7 +5,7 @@ import type { ListBlobResultBlob } from '@vercel/blob'
 import _range from 'lodash-es/range'
 import _sampleSize from 'lodash-es/sampleSize'
 import _toInteger from 'lodash-es/toInteger'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { redirect } from 'react-router'
 import adjectives from '~/adjectives'
 import titles from '~/titles'
@@ -53,17 +53,23 @@ export async function action({
   return redirect('/')
 }
 
+export type OnVotedType = React.Dispatch<
+  React.SetStateAction<boolean | undefined>
+>
 export default function Home({
   loaderData: { title, adjective, left, right },
 }: Route.ComponentProps) {
   useEffect(() => {
     document.title = title
   })
+
+  const [vote, setVote] = useState(undefined as boolean | undefined)
   return (
     <BattleBoks
       adjective={adjective.toLocaleLowerCase()}
       left={left}
       right={right}
+      onVoted={setVote}
     />
   )
 }
