@@ -42,7 +42,7 @@ export function BattleBoks({
       <div className="flex items-center justify-center pt-8">
         Which is more {adjective}?
       </div>
-      <main className="flex justify-center gap-x-4 pt-16 px-1 pb-4">
+      <main className="flex justify-center gap-x-2 pt-16 px-2 pb-4">
         <div className={`flex-1 ${lvote ? lslideIn : rvote ? fadeOut : ''}`}>
           <img
             src={left.url}
