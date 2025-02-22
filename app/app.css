@@ -4,19 +4,16 @@
 
 html,
 body {
-  @apply bg-white dark:bg-gray-950;
-
-  @media (prefers-color-scheme: dark) {
-    color-scheme: dark;
-  }
+  background-color: #40140F;
+  color: #b4b0b0
 }
 
 a {
-  color: blue;
+  color: lightgray;
   text-decoration: underline;
 }
 
 a.active {
-  color: unset;
+  color: #b4b0b0;
   text-decoration: none;
 }
