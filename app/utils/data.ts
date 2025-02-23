@@ -8,7 +8,7 @@ import {
   type MigratorProps,
 } from 'kysely'
 
-import { list as listChix, type ListBlobResultBlob } from '@vercel/blob'
+import { Octokit } from '@octokit/core'
 import { kv } from '@vercel/kv'
 
 export const VOTES_TABLE = 'Votes'
@@ -68,12 +68,28 @@ interface DbSchema {
 
 export const db = createKysely<DbSchema>()
 
-const CHIX_KEY = 'chix'
+const CHIX_KEY = 'chix-gh'
+const octokit = new Octokit()
+const CHIX_PATH = '/repos/jwishnie/down-to-flock/contents/public/chix'
+export type ChickMeta = {
+  src: string
+  name: string
+}
+
+const REDIS_TTL = 60 * 60 * 8 // 8 hrs
 export const getChix = async function () {
-  const fromStore = (await kv.get(CHIX_KEY)) as ListBlobResultBlob[] | null
+  const fromStore = (await kv.get(CHIX_KEY)) as ChickMeta[] | null
   if (!fromStore) {
-    const chix = (await listChix()).blobs
-    await kv.set(CHIX_KEY, chix, { ex: 3600 })
+    const chix = (await new Octokit().request(`GET ${CHIX_PATH}`)).data.map(
+      ({
+        name,
+        download_url: src,
+      }: {
+        name: string
+        download_url: string
+      }) => ({ name, src })
+    ) as ChickMeta[]
+    await kv.set(CHIX_KEY, chix, { ex: REDIS_TTL })
     return chix
   }
 

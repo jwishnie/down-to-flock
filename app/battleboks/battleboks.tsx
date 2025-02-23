@@ -1,6 +1,6 @@
-import { type ListBlobResultBlob } from '@vercel/blob'
 import { useState } from 'react'
 import { useLocation, useSubmit } from 'react-router'
+import type { ChickMeta } from '~/utils/data'
 
 const bokClass =
   'p-1 sm:p-0 w-svw sm:w-full cursor-pointer transition delay-75 duration-300 ease-in-out hover:scale-105'
@@ -11,8 +11,8 @@ export function BattleBoks({
   right,
 }: {
   adjective: string
-  left: ListBlobResultBlob
-  right: ListBlobResultBlob
+  left: ChickMeta
+  right: ChickMeta
 }) {
   const submit = useSubmit()
   const path = useLocation().pathname
@@ -20,7 +20,8 @@ export function BattleBoks({
   let [rvote, setRVote] = useState(false)
   let [lvote, setLVote] = useState(false)
   const fadeOut = 'transition-opacity opacity-0 ease-in duration-300'
-  const rslideIn = 'transition-transform max-sm:-translate-y-full sm:-translate-x-1/2'
+  const rslideIn =
+    'transition-transform max-sm:-translate-y-full sm:-translate-x-1/2'
   const lslideIn = 'sm:transition-transform sm:translate-x-1/2'
 
   const vote = async function (vote: 'l' | 'r') {
@@ -49,7 +50,7 @@ export function BattleBoks({
           }`}
         >
           <img
-            src={left.url}
+            src={left.src}
             className={`${bokClass}`}
             onClick={() => vote('l' as const)}
           />
@@ -60,7 +61,7 @@ export function BattleBoks({
           }`}
         >
           <img
-            src={right.url}
+            src={right.src}
             className={`${bokClass}`}
             onClick={() => vote('r' as const)}
           />

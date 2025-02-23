@@ -9,15 +9,15 @@ import { useEffect } from 'react'
 import { redirect } from 'react-router'
 import adjectives from '~/adjectives'
 import titles from '~/titles'
-import { db, getChix, VOTES_TABLE } from '~/utils/data'
+import { db, getChix, VOTES_TABLE, type ChickMeta } from '~/utils/data'
 
 export async function loader({
   params: { adjective, left, right },
 }: Route.LoaderArgs) {
   const chix = await getChix()
 
-  const leftChick: ListBlobResultBlob | undefined = chix[parseInt(left!)]
-  const rightChick: ListBlobResultBlob | undefined = chix[parseInt(right!)]
+  const leftChick: ChickMeta | undefined = chix[parseInt(left!)]
+  const rightChick: ChickMeta | undefined = chix[parseInt(right!)]
   if (!(adjective && left && right && leftChick && rightChick)) {
     const adj = _sampleSize(adjectives)[0].toLocaleLowerCase()
     const [leftI, rightI] = _sampleSize(_range(chix.length - 1), 2)
@@ -44,8 +44,8 @@ export async function action({
     .insertInto(VOTES_TABLE)
     .values({
       adjective,
-      left: chix[_toInteger(left)].url,
-      right: chix[_toInteger(right)].url,
+      left: chix[_toInteger(left)].src,
+      right: chix[_toInteger(right)].src,
       left_wins: vote === 'l',
     } as any)
     .execute()
