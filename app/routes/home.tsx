@@ -1,7 +1,6 @@
 import { BattleBoks } from '~/battleboks/battleboks'
 import type { Route } from './+types/home'
 
-import type { ListBlobResultBlob } from '@vercel/blob'
 import _range from 'lodash-es/range'
 import _sampleSize from 'lodash-es/sampleSize'
 import _toInteger from 'lodash-es/toInteger'
