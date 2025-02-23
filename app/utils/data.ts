@@ -38,13 +38,13 @@ const dbMigrationProvider: MigrationProvider = {
     '002_indexes': {
       async up(db) {
         await db.schema
-          .createIndex('Account_userId_index')
+          .createIndex('timestamp-index')
           .on(VOTES_TABLE)
           .column('timestamp')
           .execute()
       },
       async down(db) {
-        // await db.schema.dropIndex('timestamp').on(VOTES_TABLE).execute()
+        //  await db.schema.dropIndex('timestamp-index').on(VOTES_TABLE).execute()
       },
     },
   }),

@@ -16,9 +16,11 @@ export async function loader({ params: { page } }: Route.LoaderArgs) {
     .orderBy('timestamp', 'desc')
     .execute()
 
+  if (!votes?.length) {
+    return { votes: [], numPages: 0, currentPage: 0 }
+  }
   const numPages = Math.ceil(votes.length / ROWS_PER_PAGE)
   const current = safeParseInt(page)
-  console.log({ numPages, current })
   if (!current || current > numPages) {
     return redirect('/results/1')
   }
@@ -31,37 +33,41 @@ export default function Tally({
 }: Route.ComponentProps) {
   const nav = useNavigate()
   const [page, setPage] = useState(currentPage)
-  const pager = _range(1, numPages + 1).map((n, idx) => (
-    <span key={idx}>
-      {!!idx ? ' | ' : ''}
-      {n == currentPage ? (
-        n
-      ) : (
-        <a
-          className="cursor-pointer"
-          onClick={() => {
-            setPage(n)
-          }}
-        >
-          {n}
-        </a>
-      )}
-    </span>
-  ))
-  const voteItems = votes
-    .slice(ROWS_PER_PAGE * (page - 1), ROWS_PER_PAGE * page)
-    .map(({ adjective, left, right, left_wins, id }) => (
-      <div
-        key={id}
-        className="flex items-center justify-center gap-x-5 py-6 w-full"
-      >
-        <img className="max-w-32" src={left_wins ? left : right} />
-        <div className="w-fit text-center min-w-70">
-          is more {adjective} than
-        </div>
-        <img className="max-w-32" src={left_wins ? right : left} />
-      </div>
-    ))
+  const pager = votes.length
+    ? _range(1, numPages + 1).map((n, idx) => (
+        <span key={idx}>
+          {!!idx ? ' | ' : ''}
+          {n == currentPage ? (
+            n
+          ) : (
+            <a
+              className="cursor-pointer"
+              onClick={() => {
+                setPage(n)
+              }}
+            >
+              {n}
+            </a>
+          )}
+        </span>
+      ))
+    : ''
+  const voteItems = votes.length
+    ? votes
+        .slice(ROWS_PER_PAGE * (page - 1), ROWS_PER_PAGE * page)
+        .map(({ adjective, left, right, left_wins, id }) => (
+          <div
+            key={id}
+            className="flex items-center justify-center gap-x-5 py-6 w-full"
+          >
+            <img className="max-w-32" src={left_wins ? left : right} />
+            <div className="w-fit text-center min-w-70">
+              is more {adjective} than
+            </div>
+            <img className="max-w-32" src={left_wins ? right : left} />
+          </div>
+        ))
+    : ''
   return (
     <div className="px-2">
       <div className="flex items-center justify-center py-16">Results</div>
