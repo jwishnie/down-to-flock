@@ -38,7 +38,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <div className="flex justify-end gap-2">
           <div>
             <NavLink to="/" end={false}>
-              more birbs
+              more chicks
             </NavLink>
           </div>
           <div>

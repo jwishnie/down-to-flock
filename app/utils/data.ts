@@ -44,7 +44,7 @@ const dbMigrationProvider: MigrationProvider = {
           .execute()
       },
       async down(db) {
-        await db.schema.dropIndex('timestamp').on(VOTES_TABLE).execute()
+        // await db.schema.dropIndex('timestamp').on(VOTES_TABLE).execute()
       },
     },
   }),

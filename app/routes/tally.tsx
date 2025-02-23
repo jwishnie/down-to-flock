@@ -15,8 +15,9 @@ export async function loader({ params: { page } }: Route.LoaderArgs) {
     .orderBy('timestamp', 'desc')
     .execute()
 
-  const numPages = votes.length / ROWS_PER_PAGE
+  const numPages = Math.ceil(votes.length / ROWS_PER_PAGE)
   const current = safeParseInt(page)
+  console.log({ numPages, current })
   if (!current || current > numPages) {
     return redirect('/results/1')
   }
@@ -63,9 +64,13 @@ export default function Tally({
   return (
     <div className="px-2">
       <div className="flex items-center justify-center py-16">Results</div>
-      <div className="flex items-center justify-center px-4">
-        <span>{pager}</span>
-      </div>
+      {numPages > 1 ? (
+        <div className="flex items-center justify-center px-4">
+          <span>{pager}</span>
+        </div>
+      ) : (
+        ''
+      )}
       <div>{voteItems}</div>
     </div>
   )
