@@ -5,13 +5,14 @@ import { db, VOTES_TABLE } from '~/utils/data'
 import { safeParseInt } from '~/utils/general'
 import type { Route } from './+types/tally'
 
-const ROWS_PER_PAGE = 20
+const ROWS_PER_PAGE = 25
+const MAX_ROWS_TO_RETRIEVE = ROWS_PER_PAGE * 30
 
 export async function loader({ params: { page } }: Route.LoaderArgs) {
   const votes = await db
     .selectFrom(VOTES_TABLE)
     .selectAll()
-    .limit(600)
+    .limit(MAX_ROWS_TO_RETRIEVE)
     .orderBy('timestamp', 'desc')
     .execute()
 
