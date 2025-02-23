@@ -35,6 +35,18 @@ const dbMigrationProvider: MigrationProvider = {
         await db.schema.dropTable(VOTES_TABLE).ifExists().execute()
       },
     },
+    '002_indexes': {
+      async up(db) {
+        await db.schema
+          .createIndex('Account_userId_index')
+          .on(VOTES_TABLE)
+          .column('timestamp')
+          .execute()
+      },
+      async down(db) {
+        await db.schema.dropIndex('timestamp').on(VOTES_TABLE).execute()
+      },
+    },
   }),
 }
 
