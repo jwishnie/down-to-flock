@@ -35,14 +35,19 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
-        <div className="flex justify-end gap-2">
+        <div className="flex justify-between gap-2 px-2">
           <div>
-            <NavLink to="/" end={false}>
-              more chicks
-            </NavLink>
+            <a href="https://chicken.pics">chicken town</a>
           </div>
-          <div>
-            <NavLink to="/results">results</NavLink>
+          <div className="flex justify-end gap-2">
+            <div>
+              <NavLink to="/" end={false}>
+                more chicks
+              </NavLink>
+            </div>
+            <div>
+              <NavLink to="/results">results</NavLink>
+            </div>
           </div>
         </div>
         {children}
