@@ -19,6 +19,7 @@ export async function loader({ params: { page } }: Route.LoaderArgs) {
   if (!votes?.length) {
     return { votes: [], numPages: 0, currentPage: 0 }
   }
+
   const numPages = Math.ceil(votes.length / ROWS_PER_PAGE)
   const current = safeParseInt(page)
   if (!current || current > numPages) {
@@ -43,7 +44,9 @@ export default function Tally({
             <a
               className="cursor-pointer"
               onClick={() => {
+                console.log(n)
                 setPage(n)
+                nav(`/results/${n}`)
               }}
             >
               {n}
