@@ -5,7 +5,7 @@ import _range from 'lodash-es/range'
 import _sampleSize from 'lodash-es/sampleSize'
 import _toInteger from 'lodash-es/toInteger'
 import { useEffect } from 'react'
-import { redirect } from 'react-router'
+import { redirect, useLocation, useSubmit } from 'react-router'
 import adjectives from '~/adjectives'
 import titles from '~/titles'
 import { db, getChix, VOTES_TABLE, type ChickMeta } from '~/utils/data'
@@ -58,11 +58,18 @@ export default function Home({
   useEffect(() => {
     document.title = title
   })
+
+  const submit = useSubmit()
+  const path = useLocation().pathname
+  const vote = function (v: boolean) {
+    submit({ v }, { action: `${path}`, method: 'post' })
+  }
   return (
     <BattleBoks
       adjective={adjective.toLocaleLowerCase()}
       left={left}
       right={right}
+      onSelected={vote}
     />
   )
 }

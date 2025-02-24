@@ -1,5 +1,4 @@
-import { useState } from 'react'
-import { useLocation, useSubmit } from 'react-router'
+import { useEffect, useState } from 'react'
 import type { ChickMeta } from '~/utils/data'
 
 const bokClass =
@@ -9,34 +8,29 @@ export function BattleBoks({
   adjective,
   left,
   right,
+  onSelected,
 }: {
   adjective: string
   left: ChickMeta
   right: ChickMeta
+  onSelected: (selected: boolean) => void
 }) {
-  const submit = useSubmit()
-  const path = useLocation().pathname
+  const [selected, setSelected] = useState(undefined as boolean | undefined)
+  useEffect(() => {
+    if (typeof selected != 'undefined') {
+      setTimeout(() => {
+        onSelected(selected)
+        setSelected(undefined)
+      }, 330)
+    }
+  }, [selected])
 
-  let [rvote, setRVote] = useState(false)
-  let [lvote, setLVote] = useState(false)
+  const lselected = selected === true
+  const rselected = selected === false
   const fadeOut = 'transition-opacity opacity-0 ease-in duration-300'
   const rslideIn =
     'transition-transform max-sm:-translate-y-full sm:-translate-x-1/2'
   const lslideIn = 'sm:transition-transform sm:translate-x-1/2'
-
-  const vote = async function (vote: 'l' | 'r') {
-    if (vote === 'l') {
-      setLVote(true)
-    } else {
-      setRVote(true)
-    }
-    setTimeout(() => {
-      submit({ vote }, { action: `${path}`, method: 'post' }).then(() => {
-        setRVote(false)
-        setLVote(false)
-      })
-    }, 330)
-  }
 
   return (
     <div>
@@ -46,24 +40,24 @@ export function BattleBoks({
       <main className="flex flex-wrap justify-center gap-x-2 pt-16 px-2 pb-4">
         <div
           className={`flex-none sm:flex-1  ${
-            lvote ? lslideIn : rvote ? fadeOut : ''
+            lselected ? lslideIn : rselected ? fadeOut : ''
           }`}
         >
           <img
             src={left.src}
             className={`${bokClass}`}
-            onClick={() => vote('l' as const)}
+            onClick={() => setSelected(true)}
           />
         </div>
         <div
           className={`flex-none sm:flex-1 ${
-            rvote ? rslideIn : lvote ? fadeOut : ''
+            rselected ? rslideIn : lselected ? fadeOut : ''
           }`}
         >
           <img
             src={right.src}
             className={`${bokClass}`}
-            onClick={() => vote('r' as const)}
+            onClick={() => setSelected(false)}
           />
         </div>
       </main>

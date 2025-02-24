@@ -70,7 +70,7 @@ export const db = createKysely<DbSchema>()
 
 const CHIX_KEY = 'chix-gh'
 const octokit = new Octokit()
-const CHIX_PATH = '/repos/jwishnie/down-to-flock/contents/public/chix'
+const CHIX_PATH = '/repos/jwishnie/down-to-flock/contents/chix'
 export type ChickMeta = {
   src: string
   name: string
