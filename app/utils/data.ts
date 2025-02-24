@@ -68,7 +68,7 @@ interface DbSchema {
 
 export const db = createKysely<DbSchema>()
 
-const CHIX_KEY = 'chix-gh'
+const CHIX_KEY = 'chix-gh-v2'
 const octokit = new Octokit()
 const CHIX_PATH = '/repos/jwishnie/down-to-flock/contents/chix'
 export type ChickMeta = {
