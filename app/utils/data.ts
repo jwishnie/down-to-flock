@@ -68,9 +68,10 @@ interface DbSchema {
 
 export const db = createKysely<DbSchema>()
 
-const CHIX_KEY = 'chix-gh-v2'
+const CHIX_KEY = 'chix-gh-v3'
 const octokit = new Octokit()
 const CHIX_PATH = '/repos/jwishnie/down-to-flock/contents/chix'
+const PAGES_PATH = 'https://jwishnie.github.io/down-to-flock/'
 export type ChickMeta = {
   src: string
   name: string
@@ -81,13 +82,7 @@ export const getChix = async function () {
   const fromStore = (await kv.get(CHIX_KEY)) as ChickMeta[] | null
   if (!fromStore) {
     const chix = (await new Octokit().request(`GET ${CHIX_PATH}`)).data.map(
-      ({
-        name,
-        download_url: src,
-      }: {
-        name: string
-        download_url: string
-      }) => ({ name, src })
+      ({ name }: { name: string }) => ({ name, src: `${PAGES_PATH}/${name}` })
     ) as ChickMeta[]
     await kv.set(CHIX_KEY, chix, { ex: REDIS_TTL })
     return chix
