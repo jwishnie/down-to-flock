@@ -6,6 +6,7 @@ const titles = [
   'A Few Good Hens',
   'Baby got Bok',
   'Down to Cluck',
+  'Cockfight',
 ]
 
 export default titles
