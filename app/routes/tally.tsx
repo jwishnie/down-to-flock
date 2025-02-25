@@ -44,7 +44,6 @@ export default function Tally({
             <a
               className="cursor-pointer"
               onClick={() => {
-                console.log(n)
                 setPage(n)
                 nav(`/results/${n}`)
               }}

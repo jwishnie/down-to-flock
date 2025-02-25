@@ -6,6 +6,7 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useLocation,
 } from 'react-router'
 
 import type { Route } from './+types/root'
@@ -26,6 +27,7 @@ export const links: Route.LinksFunction = () => [
 ]
 
 export function Layout({ children }: { children: React.ReactNode }) {
+  const resultsPage = useLocation().pathname.startsWith('/results')
   return (
     <html lang="en">
       <head>
@@ -40,14 +42,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
             <a href="https://chicken.pics">chicken town</a>
           </div>
           <div className="flex justify-end gap-2">
-            <div>
+            {resultsPage ? (
               <NavLink to="/" end={false}>
                 more chicks
               </NavLink>
-            </div>
-            <div>
+            ) : (
               <NavLink to="/results">results</NavLink>
-            </div>
+            )}
           </div>
         </div>
         {children}
