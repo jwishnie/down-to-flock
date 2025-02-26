@@ -203,6 +203,20 @@ const adjectives = [
   "Bossy",
   "Brutish",
   "Befuddling",
+  "Arrogant",
+  "Chaotic",
+  "Contemptuous",
+  "Empathetic",
+  "Fierce",
+  "Pensive",
+  "Pragmatic",
+  "Uptight",
+  "Solemn",
+  "Uneasy",
+  "Confrontational",
+  "Deceitful",
+  "Playful",
+  "Thirsty",
   "Bumptious"
 ]
 
