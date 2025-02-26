@@ -180,7 +180,30 @@ const adjectives = [
   "Touchy",
   "Visionary",
   "Voracious",
-  "Zesty"
+  "Luminous",
+  "Pulchritudinous",
+  "Zesty",
+  "Motley",
+  "Froufrou",
+  "Haunted",
+  "Flummoxed",
+  "Mephistophelean",
+  "Rabelaisian",
+  "Malevolent",
+  "Menacing",
+  "Murderous",
+  "Magnetic",
+  "Melancholy",
+  "Mischievous",
+  "Moral",
+  "Mundane",
+  "Maladjusted",
+  "Meddlesome",
+  "Bloodthirsty",
+  "Bossy",
+  "Brutish",
+  "Befuddling",
+  "Bumptious"
 ]
 
 export default adjectives
