@@ -75,7 +75,7 @@ export default function Tally({
       <div className="flex items-center justify-center py-16">Results</div>
       {numPages > 1 ? (
         <div className="flex items-center justify-center px-4">
-          <span>{pager}</span>
+          <div className="text-center w-full">{pager}</div>
         </div>
       ) : (
         ''
