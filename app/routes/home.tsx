@@ -110,6 +110,7 @@ export default function Home({
   }
   return (
     <BattleBoks
+    key={`${adjective}${left.name}${right.name}`}
       adjective={adjective.toLocaleLowerCase()}
       left={left}
       right={right}

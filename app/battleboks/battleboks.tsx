@@ -20,8 +20,7 @@ export function BattleBoks({
     if (typeof selected != 'undefined') {
       setTimeout(() => {
         onSelected(selected)
-        setSelected(undefined)
-      }, 330)
+      }, 450)
     }
   }, [selected])
 
