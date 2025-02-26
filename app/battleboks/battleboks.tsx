@@ -4,6 +4,8 @@ import type { ChickMeta } from '~/utils/data'
 const bokClass =
   'p-1 sm:p-0 w-svw sm:w-full cursor-pointer transition delay-75 duration-300 ease-in-out hover:scale-105'
 
+const ANIMATION_DELAY = 425
+
 export function BattleBoks({
   adjective,
   left,
@@ -20,7 +22,7 @@ export function BattleBoks({
     if (typeof selected != 'undefined') {
       setTimeout(() => {
         onSelected(selected)
-      }, 450)
+      }, ANIMATION_DELAY)
     }
   }, [selected])
 
