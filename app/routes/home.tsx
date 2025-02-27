@@ -59,8 +59,7 @@ export async function action({
   request,
   params: { adjective, left, right },
 }: Route.ActionArgs) {
-  const formData = await request.formData()
-  const vote = formData.get('vote')
+  const vote = (await request.formData()).get('vote')
   const chix = await getChix()
 
   const [leftChick, rightChick] = [left, right].map((i) => {
@@ -80,11 +79,11 @@ export async function action({
   await db
     .insertInto(VOTES_TABLE)
     .values({
-      adjective,
+      adjective: adjective || '', // for typescript, if empty route wouldn't have reached here
       left: leftChick.src,
       right: rightChick.src,
       left_wins: vote === 'l',
-    } as any)
+    })
     .execute()
 
   // pick next battle
@@ -110,7 +109,7 @@ export default function Home({
   }
   return (
     <BattleBoks
-    key={`${adjective}${left.name}${right.name}`}
+      key={`${adjective}${left.name}${right.name}`}
       adjective={adjective.toLocaleLowerCase()}
       left={left}
       right={right}
