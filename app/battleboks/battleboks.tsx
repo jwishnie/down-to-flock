@@ -35,7 +35,7 @@ export function BattleBoks({
 
   return (
     <div>
-      <div className="header text-5xl text-stone-300 flex items-center justify-center pt-8">
+      <div className="header flex items-center justify-center pt-8">
         Which is more {adjective}?
       </div>
       <main className="flex flex-wrap justify-center gap-x-2 pt-8 px-2 pb-4">

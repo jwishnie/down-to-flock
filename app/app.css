@@ -8,20 +8,20 @@
 html,
 body {
   background-color: #40140F;
-  color: #b4b0b0;
+  @apply  text-stone-300;;
   font-family: 'IBM Plex Mono', sans-serif;
 }
 
 a {
-  color: lightgray;
   text-decoration: underline;
 }
 
 a.active {
-  color: #b4b0b0;
+  @apply  text-stone-100;
   text-decoration: none;
 }
 
 .header {
   font-family: 'Frank Ruhl Libre', serif;
+  @apply text-4xl text-stone-300;
 }
