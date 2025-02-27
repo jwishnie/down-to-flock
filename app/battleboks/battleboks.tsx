@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { ChickMeta } from '~/utils/data'
 
 const bokClass =
@@ -29,9 +29,21 @@ export function BattleBoks({
   const lselected = selected === true
   const rselected = selected === false
   const fadeOut = 'transition-opacity opacity-0 ease-in duration-300'
-  const rslideIn =
-    'transition-transform max-sm:-translate-y-full sm:-translate-x-1/2'
-  const lslideIn = 'sm:transition-transform sm:translate-x-1/2'
+  const rslideIn = 'scalemation'
+  // 'transition-transform max-sm:-translate-y-full sm:-translate-x-1/2'
+  const lslideIn = 'scalemation' // 'sm:transition-transform sm:translate-x-1/2'
+
+  const leftChick = useRef<HTMLDivElement>(null)
+  const rightChick = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    leftChick.current?.addEventListener('animationend', () =>
+      console.log('left chick end')
+    )
+    rightChick.current?.addEventListener('animationend', () =>
+      console.log('right chick end')
+    )
+  }, [])
 
   return (
     <div>
@@ -40,6 +52,7 @@ export function BattleBoks({
       </div>
       <main className="flex flex-wrap justify-center gap-x-2 pt-16 px-2 pb-4">
         <div
+          ref={leftChick}
           className={`flex-none sm:flex-1  ${
             lselected ? lslideIn : rselected ? fadeOut : ''
           }`}
@@ -51,6 +64,7 @@ export function BattleBoks({
           />
         </div>
         <div
+          ref={rightChick}
           className={`flex-none sm:flex-1 ${
             rselected ? rslideIn : lselected ? fadeOut : ''
           }`}

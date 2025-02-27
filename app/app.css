@@ -17,3 +17,13 @@ a.active {
   color: #b4b0b0;
   text-decoration: none;
 }
+
+
+@keyframes scaly {
+  from {width: 100%;}
+  to {width: 10%;}
+}
+
+.scalemation {
+  animation: scaly 2s ease-in-out;
+}
