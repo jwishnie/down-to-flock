@@ -72,10 +72,10 @@ export default function Tally({
     : ''
   return (
     <div className="px-2">
-      <div className="flex items-center justify-center py-16">Results</div>
+      <div className="header text-5xl text-stone-300 flex items-center justify-center py-8">Results</div>
       {numPages > 1 ? (
         <div className="flex items-center justify-center px-4">
-          <div className="text-center w-full">{pager}</div>
+          <div className="font-sans text-center w-full">{pager}</div>
         </div>
       ) : (
         ''
