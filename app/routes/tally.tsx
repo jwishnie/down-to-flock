@@ -60,7 +60,7 @@ export default function Tally({
         .map(({ adjective, left, right, left_wins, id }) => (
           <div
             key={id}
-            className="flex items-center justify-center gap-x-5 py-6 w-full"
+            className="flex items-center justify-center gap-x-5 py-3 w-full"
           >
             <img className="max-w-32" src={left_wins ? left : right} />
             <div className="w-fit text-center min-w-70">
@@ -74,7 +74,7 @@ export default function Tally({
     <div className="px-2">
       <div className="header flex items-center justify-center py-8">Results</div>
       {numPages > 1 ? (
-        <div className="flex items-center justify-center px-3">
+        <div className="flex items-center justify-center px-2 pb-4">
           <div className="font-sans text-center w-full">{pager}</div>
         </div>
       ) : (
