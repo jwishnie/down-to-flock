@@ -10,6 +10,7 @@ import {
 
 import { Octokit } from '@octokit/core'
 import { kv } from '@vercel/kv'
+import { safeParseInt } from './general'
 
 export const VOTES_TABLE = 'Votes'
 
@@ -76,15 +77,40 @@ export type ChickMeta = {
   name: string
 }
 
-const REDIS_TTL = 60 * 60 * 8 // 8 hrs
+const CHIX_TTL = 60 * 60 * 8 // 8 hrs
 export const getChix = async function () {
   const fromStore = (await kv.get(CHIX_KEY)) as ChickMeta[] | null
   if (!fromStore) {
     const chix = (await new Octokit().request(`GET ${CHIX_PATH}`)).data.map(
       ({ name }: { name: string }) => ({ name, src: `${PAGES_PATH}/${name}` })
     ) as ChickMeta[]
-    await kv.set(CHIX_KEY, chix, { ex: REDIS_TTL })
+    await kv.set(CHIX_KEY, chix, { ex: CHIX_TTL })
     return chix
+  }
+
+  return fromStore
+}
+
+export const getVotes = async function (rowsPerPage = 25, maxPages = 30) {
+  return await db
+    .selectFrom(VOTES_TABLE)
+    .selectAll()
+    .limit(rowsPerPage * maxPages)
+    .orderBy('timestamp', 'desc')
+    .execute()
+}
+
+const COUNT_TTL = 60 * 10 // ten minutes
+const COUNT_KEY = 'chix-count-v1'
+export const getVoteCount = async function (exact = false) {
+  const fromStore = exact ? undefined : safeParseInt(await kv.get(COUNT_KEY))
+  if (!fromStore) {
+    const { count } = await db
+      .selectFrom(VOTES_TABLE)
+      .select((eb) => eb.fn.countAll().as('count'))
+      .executeTakeFirstOrThrow()
+    await kv.set(COUNT_KEY, `${count}`, { ex: COUNT_TTL })
+    return safeParseInt(count) || 0
   }
 
   return fromStore

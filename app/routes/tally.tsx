@@ -1,20 +1,14 @@
 import _range from 'lodash-es/range'
 import { useState } from 'react'
 import { redirect, useNavigate } from 'react-router'
-import { db, VOTES_TABLE } from '~/utils/data'
+import { getVoteCount, getVotes } from '~/utils/data'
 import { safeParseInt } from '~/utils/general'
 import type { Route } from './+types/tally'
 
 const ROWS_PER_PAGE = 25
-const MAX_ROWS_TO_RETRIEVE = ROWS_PER_PAGE * 30
-
+const MAX_PAGES = 30
 export async function loader({ params: { page } }: Route.LoaderArgs) {
-  const votes = await db
-    .selectFrom(VOTES_TABLE)
-    .selectAll()
-    .limit(MAX_ROWS_TO_RETRIEVE)
-    .orderBy('timestamp', 'desc')
-    .execute()
+  const votes = await getVotes(ROWS_PER_PAGE, MAX_PAGES)
 
   if (!votes?.length) {
     return { votes: [], numPages: 0, currentPage: 0 }
@@ -26,11 +20,12 @@ export async function loader({ params: { page } }: Route.LoaderArgs) {
     return redirect('/results/1')
   }
 
-  return { votes, numPages, currentPage: current }
+  const totalVotes = await getVoteCount()
+  return { totalVotes, votes, numPages, currentPage: current }
 }
 
 export default function Tally({
-  loaderData: { votes, numPages, currentPage },
+  loaderData: { totalVotes, votes, numPages, currentPage },
 }: Route.ComponentProps) {
   const nav = useNavigate()
   const [page, setPage] = useState(currentPage)
@@ -72,7 +67,12 @@ export default function Tally({
     : ''
   return (
     <div className="px-2">
-      <div className="header flex items-center justify-center py-8">Results</div>
+      <div className="header flex items-center justify-center pt-6">
+        Results
+      </div>
+      <div className="subheader flex items-center justify-center pb-6">
+        ~{Math.floor(totalVotes! / 10) * 10} votes
+      </div>
       {numPages > 1 ? (
         <div className="flex items-center justify-center px-2 pb-4">
           <div className="font-sans text-center w-full">{pager}</div>

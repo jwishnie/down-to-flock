@@ -4,11 +4,10 @@
 @tailwind components;
 @tailwind utilities;
 
-
 html,
 body {
-  background-color: #40140F;
-  @apply  text-stone-300;;
+  background-color: #40140f;
+  @apply text-stone-300;
   font-family: 'IBM Plex Mono', sans-serif;
 }
 
@@ -17,11 +16,16 @@ a {
 }
 
 a.active {
-  @apply  text-stone-100;
+  @apply text-stone-100;
   text-decoration: none;
 }
 
 .header {
   font-family: 'Frank Ruhl Libre', serif;
   @apply text-4xl text-stone-300;
+}
+
+.subheader {
+  font-family: 'Frank Ruhl Libre', serif;
+  @apply text-sm text-stone-300;
 }
