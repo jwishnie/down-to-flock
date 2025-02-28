@@ -35,9 +35,7 @@ export function BattleBoks({
 
   return (
     <div>
-      <div className="header flex items-center justify-center pt-8">
-        Which is more {adjective}?
-      </div>
+      <div className="header flex items-center justify-center pt-8">Which is more {adjective}?</div>
       <main className="flex flex-wrap justify-center gap-x-2 pt-8 px-2 pb-4">
         <div
           className={`flex-none sm:flex-1  ${

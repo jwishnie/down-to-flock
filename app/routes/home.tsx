@@ -108,12 +108,21 @@ export default function Home({
     submit({ vote: v ? 'l' : 'r' }, { action: `${path}`, method: 'post' })
   }
   return (
-    <BattleBoks
-      key={`${adjective}${left.name}${right.name}`}
-      adjective={adjective.toLocaleLowerCase()}
-      left={left}
-      right={right}
-      onSelected={vote}
-    />
+    <div>
+      <div className="header flex items-center justify-center">
+        <BattleBoks
+          key={`${adjective}${left.name}${right.name}`}
+          adjective={adjective.toLocaleLowerCase()}
+          left={left}
+          right={right}
+          onSelected={vote}
+        />
+      </div>
+      <div className="flex items-center justify-center">
+        <a className="text-sm" href="mailto:squawk@chicken.pics">
+          <span>Suggest an adjective!</span>
+        </a>
+      </div>
+    </div>
   )
 }
