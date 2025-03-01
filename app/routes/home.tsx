@@ -109,7 +109,7 @@ export default function Home({
   }
   return (
     <div>
-      <div className="header flex items-center justify-center">
+      <div className="header flex items-center justify-center px-6">
         <BattleBoks
           key={`${adjective}${left.name}${right.name}`}
           adjective={adjective.toLocaleLowerCase()}

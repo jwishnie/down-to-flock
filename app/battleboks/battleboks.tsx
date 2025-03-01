@@ -36,7 +36,7 @@ export function BattleBoks({
   return (
     <div>
       <div className="header flex items-center justify-center pt-8"><div className='text-center'>Which is more {adjective}?</div></div>
-      <main className="flex flex-wrap justify-center gap-x-2 pt-8 px-2 pb-4">
+      <main className="flex flex-wrap justify-center gap-x-3 pt-8 pb-4">
         <div
           className={`flex-none sm:flex-1  ${
             lselected ? lslideIn : rselected ? fadeOut : ''
