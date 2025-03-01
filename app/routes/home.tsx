@@ -119,7 +119,10 @@ export default function Home({
         />
       </div>
       <div className="flex items-center justify-center">
-        <a className="text-sm" href="mailto:squawk@chicken.pics">
+        <a
+          className="text-sm"
+          href="mailto:squawk@chicken.pics?subject=cluk%20cluk%20adjective%20delivery%21"
+        >
           <span>Suggest an adjective!</span>
         </a>
       </div>
