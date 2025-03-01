@@ -88,6 +88,7 @@ const adjectives = [
   "Perfect",
   "Persistent",
   "Personable",
+  "Petty",
   "Popular",
   "Philosophical",
   "Placid",
