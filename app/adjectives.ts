@@ -96,7 +96,7 @@ const adjectives = [
   "Pedantic",
   "Perfect",
   "Persistent",
-  'Persnickety",
+  "Persnickety",
   "Personable",
   "Petty",
   "Popular",
