@@ -118,7 +118,7 @@ export default function Home({
           onSelected={vote}
         />
       </div>
-      <div className="flex items-center justify-center">
+      <div className="flex items-center justify-center pb-3">
         <a
           className="text-sm"
           href="mailto:squawk@chicken.pics?subject=cluk%20cluk%20adjective%20delivery%21"
