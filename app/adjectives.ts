@@ -34,7 +34,7 @@ const adjectives = [
   "Easy-going",
   "Efficient",
   "Elegant",
-  "Eiligible",
+  "Eligible",
   "Enchanting",
   "Energetic",
   "Engaging",
