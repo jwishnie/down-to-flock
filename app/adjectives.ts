@@ -75,6 +75,7 @@ const adjectives = [
   "Jubilant",
   "Kind",
   "Knowledgeable",
+  "Lackadaisical",
   "Laid-back",
   "Likable",
   "Litigious",
