@@ -131,7 +131,7 @@ const adjectives = [
   "Reliable",
   "Remarkable",
   "Remorseless",
-  "Resentful"
+  "Resentful",
   "Resilient",
   "Resourceful",
   "Romantic",
