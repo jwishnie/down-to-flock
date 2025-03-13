@@ -206,7 +206,7 @@ const adjectives = [
   "Upbeat",
   "Vindictive",
   "Vivacious",
-  "Wistful"
+  "Wistful",
   "Witty",
   "Aberrant",
   "Abject",
