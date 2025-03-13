@@ -71,7 +71,7 @@ export default function Tally({
         Results
       </div>
       <div className="subheader flex items-center justify-center pb-6">
-        ~{Math.floor(totalVotes! / 10) * 10} appraisals
+        ~{(Math.floor(totalVotes! / 10) * 10).toLocaleString()} appraisals
       </div>
       {numPages > 1 ? (
         <div className="flex items-center justify-center px-2 pb-4">
