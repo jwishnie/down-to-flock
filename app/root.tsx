@@ -54,8 +54,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <body>
         <div className="flex justify-between gap-2 px-2">
           <div>
-            <a href="https://chicken.pics">chicken town</a>
+            <a href="https://chicken.pics">see all chicken pics</a>
           </div>
+          <div className="font-bold">Clickens! (beta)</div>
           <div className="flex justify-end gap-2">
             {resultsPage ? (
               <NavLink to="/" end={false}>
