@@ -103,7 +103,7 @@ const adjectives = [
   "Helpful",
   "High-class",
   "Honest",
-  "Hootin Tootin"
+  "Hootin Tootin",
   "Hopeful",
   "Humble",
   "Imaginative",
