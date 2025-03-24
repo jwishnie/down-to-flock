@@ -52,7 +52,7 @@ const adjectives = [
   "Daring",
   "Daft",
   "Defiant",
-  "Dejected"
+  "Dejected",
   "Demure",
   "Dependable",
   "Diligent",
