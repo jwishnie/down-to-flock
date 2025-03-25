@@ -10,7 +10,7 @@ const adjectives = [
   "Amiable",
   "Apathetic",
   "Authentic",
-  "Ballistic",
+  "Balletic",
   "Bashful",
   "Bawdy",
   "Bemused",
