@@ -84,7 +84,7 @@ const adjectives = [
   "Exciting",
   "Exuberant",
   "Faithful",
-  "Fasion",
+  "Fashion",
   "Fearless",
   "Fiendish",
   "Foolhardy",
