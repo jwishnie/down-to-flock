@@ -80,7 +80,15 @@ export default function Tally({
       ) : (
         ''
       )}
-      <div>{voteItems}</div>
+      <div className='pb-4'>{voteItems}</div>
+     {/* Todo extract into component */}
+      {numPages > 1 ? (
+        <div className="flex items-center justify-center px-2 pb-4">
+          <div className="font-sans text-center w-full">{pager}</div>
+        </div>
+      ) : (
+        ''
+      )}
     </div>
   )
 }
