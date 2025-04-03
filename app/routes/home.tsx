@@ -134,7 +134,7 @@ export default function Home({
           className="text-sm"
           href="https://www.chicken.pics/store"
         >
-          <span>Store</span>
+          <span>Bok Buys!</span>  
         </a>
       </div>
     </div>

@@ -52,12 +52,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
-        <div className="flex justify-between gap-2 px-2">
-          <div>
+        <div className="flex justify-between items-center w-full px-2">
+          <div className="flex-1 text-left">
             <a href="https://chicken.pics">see all chicken pics</a>
           </div>
-          <div className="font-bold">Clickens! (beta)</div>
-          <div className="flex justify-end gap-2">
+          <div className="flex-1 text-center font-bold">Clickens! (beta)</div>
+          <div className="flex-1 text-right">
             {resultsPage ? (
               <NavLink to="/" end={false}>
                 more chicks
