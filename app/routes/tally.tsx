@@ -4,6 +4,7 @@ import { redirect, useNavigate } from 'react-router'
 import { getVoteCount, getVotes } from '~/utils/data'
 import { safeParseInt } from '~/utils/general'
 import type { Route } from './+types/tally'
+import { Pagination } from '~/components/Pagination'
 
 const ROWS_PER_PAGE = 25
 const MAX_PAGES = 30
@@ -29,26 +30,12 @@ export default function Tally({
 }: Route.ComponentProps) {
   const nav = useNavigate()
   const [page, setPage] = useState(currentPage)
-  const pager = votes.length
-    ? _range(1, numPages + 1).map((n, idx) => (
-        <span key={idx}>
-          {!!idx ? ' | ' : ''}
-          {n == currentPage ? (
-            n
-          ) : (
-            <a
-              className="cursor-pointer"
-              onClick={() => {
-                setPage(n)
-                nav(`/results/${n}`)
-              }}
-            >
-              {n}
-            </a>
-          )}
-        </span>
-      ))
-    : ''
+  
+  const handlePageSelected = (selectedPage: number) => {
+    setPage(selectedPage)
+    nav(`/results/${selectedPage}`)
+  }
+  
   const voteItems = votes.length
     ? votes
         .slice(ROWS_PER_PAGE * (page - 1), ROWS_PER_PAGE * page)
@@ -73,22 +60,9 @@ export default function Tally({
       <div className="subheader flex items-center justify-center pb-6">
         ~{(Math.floor(totalVotes! / 10) * 10).toLocaleString()} appraisals
       </div>
-      {numPages > 1 ? (
-        <div className="flex items-center justify-center px-2 pb-4">
-          <div className="font-sans text-center w-full">{pager}</div>
-        </div>
-      ) : (
-        ''
-      )}
+      <Pagination currentPage={page} numPages={numPages} onSelected={handlePageSelected} />
       <div className='pb-4'>{voteItems}</div>
-     {/* Todo extract into component */}
-      {numPages > 1 ? (
-        <div className="flex items-center justify-center px-2 pb-4">
-          <div className="font-sans text-center w-full">{pager}</div>
-        </div>
-      ) : (
-        ''
-      )}
+      <Pagination currentPage={page} numPages={numPages} onSelected={handlePageSelected} />
     </div>
   )
 }
