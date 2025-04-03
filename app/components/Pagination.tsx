@@ -1,5 +1,4 @@
 import _range from 'lodash-es/range'
-import React from 'react'
 
 interface PaginationProps {
   currentPage: number
@@ -7,7 +6,11 @@ interface PaginationProps {
   onSelected: (page: number) => void
 }
 
-export function Pagination({ currentPage, numPages, onSelected }: PaginationProps) {
+export function Pagination({
+  currentPage,
+  numPages,
+  onSelected,
+}: PaginationProps) {
   if (numPages <= 1) {
     return null
   }
@@ -18,10 +21,7 @@ export function Pagination({ currentPage, numPages, onSelected }: PaginationProp
       {n === currentPage ? (
         n
       ) : (
-        <a
-          className="cursor-pointer"
-          onClick={() => onSelected(n)}
-        >
+        <a className="cursor-pointer" onClick={() => onSelected(n)}>
           {n}
         </a>
       )}
