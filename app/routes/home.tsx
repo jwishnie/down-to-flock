@@ -129,6 +129,13 @@ export default function Home({
         >
           <span>Suggest an adjective or just say hello</span>
         </a>
+        &nbsp;|&nbsp;
+        <a
+          className="text-sm"
+          href="https://www.chicken.pics/store"
+        >
+          <span>Store</span>
+        </a>
       </div>
     </div>
   )
