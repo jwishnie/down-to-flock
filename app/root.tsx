@@ -59,7 +59,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           <div className="flex-1 text-center font-bold">Clickens! (beta)</div>
           <div className="flex-1 text-right">
             {resultsPage ? (
-              <NavLink to="/" end={false}>
+              <NavLink to="/" >
                 more chicks
               </NavLink>
             ) : (
