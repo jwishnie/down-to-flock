@@ -1,4 +1,3 @@
-import _range from 'lodash-es/range'
 import { useState } from 'react'
 import { redirect, useNavigate } from 'react-router'
 import { getVoteCount, getVotes } from '~/utils/data'

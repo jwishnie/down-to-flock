@@ -14,12 +14,7 @@ import { safeParseInt } from './general'
 
 export const VOTES_TABLE = 'Votes'
 
-console.dir({url: import.meta.env.KV_REST_API_URL, token: import.meta.env.KV_REST_API_TOKEN})
-
-const kv = new Redis({
-  url: import.meta.env.KV_REST_API_URL,
-  token: import.meta.env.KV_REST_API_TOKEN,
-});
+const kv = Redis.fromEnv()
 
 const dbMigrationProvider: MigrationProvider = {
   getMigrations: async (): Promise<Record<string, Migration>> => ({
@@ -77,6 +72,7 @@ interface DbSchema {
 export const db = createKysely<DbSchema>()
 
 const CHIX_KEY = 'chix-gh-v8'
+const RANK_KEY = 'rank-v1'
 const CHIX_PATH = '/repos/jwishnie/down-to-flock/contents/chix'
 const PAGES_PATH = 'https://chix.wishnie.org'
 export type ChickMeta = {
@@ -85,6 +81,8 @@ export type ChickMeta = {
 }
 
 const CHIX_TTL = 60 * 60 * 8 // 8 hrs
+const RANK_TTL = 60 * 30 // 30 mins
+
 export const getChix = async function () {
   const fromStore = (await kv.get(CHIX_KEY)) as ChickMeta[] | null
   if (!fromStore) {
@@ -123,41 +121,46 @@ export const getVoteCount = async function (exact = false) {
   return fromStore
 }
 
-export const getWinningUrlsByAdjective = async function (): Promise<
-  { adjective: string; winning_url: string; vote_count: number }[]
-> {
-  return await db
+type VoteRank = {
+  adjective: string
+  winning_url: string
+  vote_count: number
+}
+export const getVoteRanking = async function (): Promise<VoteRank[]> {
+  const fromStore = (await kv.get(RANK_KEY)) as VoteRank[] | null
+  if (fromStore) return fromStore
+
+  const ranks = await db
     .with('url_counts', (qb) => 
       qb.selectFrom(VOTES_TABLE)
         .select([
           'adjective',
           sql<string>`
             CASE 
-              WHEN left_wins THEN left 
-              ELSE right 
+              WHEN left_wins = true THEN "left" 
+              ELSE "right" 
             END
           `.as('url'),
-          sql<number>`1`.as('vote_count')
+          sql<number>`COUNT(*)`.as('vote_count')
         ])
-        .groupBy(['adjective', sql`CASE WHEN left_wins THEN left ELSE right END`])
+        .groupBy(['adjective', sql`CASE WHEN left_wins = true THEN "left" ELSE "right" END`])
     )
-    .selectFrom('url_counts')
-    .select([
-      'adjective',
-      sql<string>`
-        FIRST_VALUE(url) OVER (
-          PARTITION BY adjective 
-          ORDER BY COUNT(*) DESC
-        )
-      `.as('winning_url'),
-      sql<number>`
-        FIRST_VALUE(COUNT(*)) OVER (
-          PARTITION BY adjective 
-          ORDER BY COUNT(*) DESC
-        )
-      `.as('vote_count')
-    ])
-    .distinctOn(['adjective'])
-    .orderBy('adjective')
+    .selectFrom(
+      db.selectFrom('url_counts' as any)
+        .select([
+          sql<string>`adjective`.as('adjective'),
+          sql<string>`url`.as('winning_url'),
+          sql<number>`vote_count`.as('vote_count')
+        ])
+        .distinctOn(['adjective'])
+        .orderBy('adjective')
+        .orderBy('vote_count', 'desc')
+        .as('winners')
+    )
+    .select(['adjective', 'winning_url', 'vote_count'])
+    .orderBy('vote_count', 'desc')
     .execute()
+
+  await kv.set(RANK_KEY, ranks, { ex: RANK_TTL })
+  return ranks
 }
