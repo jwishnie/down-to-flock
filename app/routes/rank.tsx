@@ -1,8 +1,9 @@
-import { getVoteRanking } from "~/utils/data"
+import { getVoteRanking, getTopVotesByAdjective } from "~/utils/data"
 import type { Route } from "../routes/+types/rank"
 
 
-export default function Rank({ loaderData: { winningImages } }: Route.ComponentProps) {
+export default async function Rank({ loaderData: { winningImages } }: Route.ComponentProps) {
+  console.dir(await getTopVotesByAdjective())
   return (
     <main className="container mx-auto py-8">
       <h1 className="text-3xl font-bold text-center mb-8">The Mostests</h1>

@@ -73,6 +73,7 @@ export const db = createKysely<DbSchema>()
 
 const CHIX_KEY = 'chix-gh-v8'
 const RANK_KEY = 'rank-v5'
+const TOP_VOTES_KEY = 'top-votes-v10'
 const CHIX_PATH = '/repos/jwishnie/down-to-flock/contents/chix'
 const PAGES_PATH = 'https://chix.wishnie.org'
 export type ChickMeta = {
@@ -163,4 +164,50 @@ export const getVoteRanking = async function (): Promise<VoteRank[]> {
 
   await kv.set(RANK_KEY, ranks, { ex: RANK_TTL })
   return ranks
+}
+
+export const getTopVotesByAdjective = async function (): Promise<Record<string, VoteRank[]>> {
+  const fromStore = (await kv.get(TOP_VOTES_KEY)) as Record<string, VoteRank[]> | null
+  if (fromStore) return fromStore
+
+  const topVotes = await db
+    .with('url_counts', (qb) => 
+      qb.selectFrom(VOTES_TABLE)
+        .select([
+          'adjective',
+          sql<string>`
+            CASE 
+              WHEN left_wins = true THEN "left" 
+              ELSE "right" 
+            END
+          `.as('url'),
+          sql<number>`COUNT(*)`.as('vote_count')
+        ])
+        .groupBy(['adjective', sql`CASE WHEN left_wins = true THEN "left" ELSE "right" END`])
+    )
+    .selectFrom(
+      db.selectFrom('url_counts' as any)
+        .select([
+          'adjective',
+          'url as winning_url',
+          'vote_count',
+          sql<number>`ROW_NUMBER() OVER (PARTITION BY adjective ORDER BY vote_count DESC)`.as('rank')
+        ])
+        .as('ranked')
+    )
+    .where('rank', '<=', 10)
+    .select(['adjective', 'winning_url', 'vote_count'])
+    .execute()
+
+  // Convert array to record structure
+  const result = topVotes.reduce((acc, curr) => {
+    if (!acc[curr.adjective]) {
+      acc[curr.adjective] = []
+    }
+    acc[curr.adjective].push(curr)
+    return acc
+  }, {} as Record<string, VoteRank[]>)
+
+  await kv.set(TOP_VOTES_KEY, result, { ex: RANK_TTL })
+  return result
 }
