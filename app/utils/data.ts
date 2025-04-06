@@ -73,7 +73,7 @@ export const db = createKysely<DbSchema>()
 
 const CHIX_KEY = 'chix-gh-v8'
 const RANK_KEY = 'rank-v5'
-const TOP_VOTES_KEY = 'top-votes-v10'
+const TOP_VOTES_KEY = 'top-votes-v11PropTypes.node'
 const CHIX_PATH = '/repos/jwishnie/down-to-flock/contents/chix'
 const PAGES_PATH = 'https://chix.wishnie.org'
 export type ChickMeta = {
@@ -166,13 +166,13 @@ export const getVoteRanking = async function (): Promise<VoteRank[]> {
   return ranks
 }
 
-export const getTopVotesByAdjective = async function (): Promise<Record<string, VoteRank[]>> {
-  const fromStore = (await kv.get(TOP_VOTES_KEY)) as Record<string, VoteRank[]> | null
-  if (fromStore) return fromStore
+export const getTopVotesByAdjective = async function (): Promise<Map<string, VoteRank[]>> {
+  // const fromStore = (await kv.get(TOP_VOTES_KEY)) as Record<string, VoteRank[]> | null
+  // if (fromStore) return fromStore
 
   const topVotes = await db
-    .with('url_counts', (qb) => 
-      qb.selectFrom(VOTES_TABLE)
+    .selectFrom(
+      db.selectFrom(VOTES_TABLE)
         .select([
           'adjective',
           sql<string>`
@@ -180,34 +180,40 @@ export const getTopVotesByAdjective = async function (): Promise<Record<string, 
               WHEN left_wins = true THEN "left" 
               ELSE "right" 
             END
-          `.as('url'),
-          sql<number>`COUNT(*)`.as('vote_count')
+          `.as('winning_url'),
+          sql<number>`COUNT(*)`.as('vote_count'),
+          sql<number>`
+            ROW_NUMBER() OVER (
+              PARTITION BY adjective 
+              ORDER BY COUNT(*) DESC
+            )
+          `.as('rank'),
+          sql<number>`
+            MAX(COUNT(*)) OVER (
+              PARTITION BY adjective
+            )
+          `.as('max_votes')
         ])
         .groupBy(['adjective', sql`CASE WHEN left_wins = true THEN "left" ELSE "right" END`])
+        .as('ranked_votes')
     )
-    .selectFrom(
-      db.selectFrom('url_counts' as any)
-        .select([
-          'adjective',
-          'url as winning_url',
-          'vote_count',
-          sql<number>`ROW_NUMBER() OVER (PARTITION BY adjective ORDER BY vote_count DESC)`.as('rank')
-        ])
-        .as('ranked')
-    )
-    .where('rank', '<=', 10)
-    .select(['adjective', 'winning_url', 'vote_count'])
+    .select(['adjective', 'winning_url', 'vote_count', 'rank', 'max_votes'])
+    .where('rank', '<=', 10)  
+    .orderBy(sql`max_votes DESC, adjective, vote_count DESC`)
     .execute()
 
-  // Convert array to record structure
-  const result = topVotes.reduce((acc, curr) => {
-    if (!acc[curr.adjective]) {
-      acc[curr.adjective] = []
+  // Convert array to Map structure with explicit types
+  const result = topVotes.reduce((acc: Map<string, VoteRank[]>, curr: VoteRank) => {
+    if (!acc.has(curr.adjective)) {
+      acc.set(curr.adjective, [])
     }
-    acc[curr.adjective].push(curr)
+    acc.get(curr.adjective)!.push(curr)
     return acc
-  }, {} as Record<string, VoteRank[]>)
+  }, new Map<string, VoteRank[]>())
 
-  await kv.set(TOP_VOTES_KEY, result, { ex: RANK_TTL })
+  // Convert Map to Record for Redis storage
+  // const resultForStorage = Object.fromEntries(result)
+
+  // await kv.set(TOP_VOTES_KEY, resultForStorage, { ex: RANK_TTL })
   return result
 }
