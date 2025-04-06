@@ -11,4 +11,5 @@ export default defineConfig({
     },
   },
   plugins: [reactRouter(), tsconfigPaths()],
+  envPrefix: ['VITE_', 'KV_'],
 });

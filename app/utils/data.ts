@@ -9,10 +9,17 @@ import {
 } from 'kysely'
 
 import { Octokit } from '@octokit/core'
-import { kv } from '@vercel/kv'
+import { Redis } from '@upstash/redis'
 import { safeParseInt } from './general'
 
 export const VOTES_TABLE = 'Votes'
+
+console.dir({url: import.meta.env.KV_REST_API_URL, token: import.meta.env.KV_REST_API_TOKEN})
+
+const kv = new Redis({
+  url: import.meta.env.KV_REST_API_URL,
+  token: import.meta.env.KV_REST_API_TOKEN,
+});
 
 const dbMigrationProvider: MigrationProvider = {
   getMigrations: async (): Promise<Record<string, Migration>> => ({
@@ -114,4 +121,43 @@ export const getVoteCount = async function (exact = false) {
   }
 
   return fromStore
+}
+
+export const getWinningUrlsByAdjective = async function (): Promise<
+  { adjective: string; winning_url: string; vote_count: number }[]
+> {
+  return await db
+    .with('url_counts', (qb) => 
+      qb.selectFrom(VOTES_TABLE)
+        .select([
+          'adjective',
+          sql<string>`
+            CASE 
+              WHEN left_wins THEN left 
+              ELSE right 
+            END
+          `.as('url'),
+          sql<number>`1`.as('vote_count')
+        ])
+        .groupBy(['adjective', sql`CASE WHEN left_wins THEN left ELSE right END`])
+    )
+    .selectFrom('url_counts')
+    .select([
+      'adjective',
+      sql<string>`
+        FIRST_VALUE(url) OVER (
+          PARTITION BY adjective 
+          ORDER BY COUNT(*) DESC
+        )
+      `.as('winning_url'),
+      sql<number>`
+        FIRST_VALUE(COUNT(*)) OVER (
+          PARTITION BY adjective 
+          ORDER BY COUNT(*) DESC
+        )
+      `.as('vote_count')
+    ])
+    .distinctOn(['adjective'])
+    .orderBy('adjective')
+    .execute()
 }
