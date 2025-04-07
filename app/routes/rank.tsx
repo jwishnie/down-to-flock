@@ -56,30 +56,36 @@ export default function Rank({
           ? `the most ${selectedWord.text.toLocaleUpperCase()}`
           : 'The Mostests'}
       </h1>
-      {selectedWord
-        ? rankingMap
+      {selectedWord ? (
+        <div className="grid grid-cols-1 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-5 gap-4 justify-items-center">
+          {rankingMap
             .get(selectedWord.text)
             ?.map(({ winning_url, vote_count }) => (
               <div
                 key={`${selectedWord.text}-${winning_url}`}
-                className="flex items-center justify-center gap-x-5 py-3 w-full"
+                className="flex flex-col items-center justify-center gap-1"
               >
-                <img className="max-w-32" src={winning_url} /> {vote_count}{' '}
-                appraisals
+                <img className="max-w-[100px] h-auto" src={winning_url} />
+                <span className="text-center text-sm">
+                  {vote_count} appraisals
+                </span>
               </div>
-            )) || ''
-        : [...rankingMap.values()].slice(1, 11).map((ranks) => {
-            const { adjective, winning_url, vote_count } = ranks[0]
-            return (
-              <div
-                key={adjective}
-                className="flex items-center justify-center gap-x-5 py-3 w-full"
-              >
-                <img className="max-w-32" src={winning_url} /> is the MOST{' '}
-                {adjective} ({vote_count} appraisals)
-              </div>
-            )
-          })}
+            ))}
+        </div>
+      ) : (
+        [...rankingMap.values()].slice(1, 11).map((ranks) => {
+          const { adjective, winning_url, vote_count } = ranks[0]
+          return (
+            <div
+              key={adjective}
+              className="flex items-center justify-center gap-x-5 py-3 w-full"
+            >
+              <img className="max-w-32" src={winning_url} /> is the MOST{' '}
+              {adjective} ({vote_count} appraisals)
+            </div>
+          )
+        })
+      )}
     </main>
   )
 }
