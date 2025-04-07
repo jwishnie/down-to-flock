@@ -54,16 +54,17 @@ export default function Rank({
       </div>
 
       {selectedWord ? (
-        <div className="grid grid-cols-1 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-5 gap-4 justify-items-center">
+        <div className="justify-items-center">
           {rankingMap.get(selectedWord)?.map(({ winning_url, vote_count }) => (
             <div
               key={`${selectedWord}-${winning_url}`}
-              className="flex flex-col items-center justify-center gap-1"
+              className="flex items-center justify-center gap-x-5 py-3 w-full"
             >
-              <img className="max-w-[100px] h-auto" src={winning_url} />
-              <span className="text-center text-sm">
-                {vote_count} appraisals
-              </span>
+              <img
+                className="max-w-32 cursor-pointer"
+                src={winning_url}
+              />
+              {vote_count} appraisals
             </div>
           ))}
         </div>
