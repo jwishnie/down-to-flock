@@ -60,10 +60,7 @@ export default function Rank({
               key={`${selectedWord}-${winning_url}`}
               className="flex items-center justify-center gap-x-5 py-3 w-full"
             >
-              <img
-                className="max-w-32 cursor-pointer"
-                src={winning_url}
-              />
+              <img className="max-w-32 cursor-pointer" src={winning_url} />
               {vote_count} appraisals
             </div>
           ))}
