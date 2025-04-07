@@ -9,6 +9,7 @@
     "typecheck": "react-router typegen && tsc"
   },
   "dependencies": {
+    "@isoterik/react-word-cloud": "^1.2.0",
     "@octokit/core": "^6.1.4",
     "@react-router/node": "^7.5.0",
     "@react-router/serve": "^7.5.0",

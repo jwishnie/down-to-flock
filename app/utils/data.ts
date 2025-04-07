@@ -138,8 +138,9 @@ export const getVoteRanking = async function (): Promise<RankResult[]> {
   if (fromStore) return fromStore
 
   const ranks = await db
-    .with('url_counts', (qb) => 
-      qb.selectFrom(VOTES_TABLE)
+    .with('url_counts', (qb) =>
+      qb
+        .selectFrom(VOTES_TABLE)
         .select([
           'adjective',
           sql<string>`
@@ -148,16 +149,20 @@ export const getVoteRanking = async function (): Promise<RankResult[]> {
               ELSE "right" 
             END
           `.as('url'),
-          sql<number>`COUNT(*)`.as('vote_count')
+          sql<number>`COUNT(*)`.as('vote_count'),
         ])
-        .groupBy(['adjective', sql`CASE WHEN left_wins = true THEN "left" ELSE "right" END`])
+        .groupBy([
+          'adjective',
+          sql`CASE WHEN left_wins = true THEN "left" ELSE "right" END`,
+        ])
     )
     .selectFrom(
-      db.selectFrom('url_counts' as any)
+      db
+        .selectFrom('url_counts' as any)
         .select([
           sql<string>`adjective`.as('adjective'),
           sql<string>`url`.as('winning_url'),
-          sql<number>`vote_count`.as('vote_count')
+          sql<number>`vote_count`.as('vote_count'),
         ])
         .distinctOn(['adjective'])
         .orderBy('adjective')
@@ -173,12 +178,13 @@ export const getVoteRanking = async function (): Promise<RankResult[]> {
 }
 
 export const getTopVotesByAdjective = async function (): Promise<RankResult[]> {
-  // const fromStore = (await kv.get(TOP_VOTES_KEY)) as Record<string, VoteRank[]> | null
-  // if (fromStore) return fromStore
+  const fromStore = (await kv.get(TOP_VOTES_KEY)) as RankResult[] | null
+  if (fromStore) return fromStore
 
   const topVotes = await db
     .selectFrom(
-      db.selectFrom(VOTES_TABLE)
+      db
+        .selectFrom(VOTES_TABLE)
         .select([
           'adjective',
           sql<string>`
@@ -198,15 +204,19 @@ export const getTopVotesByAdjective = async function (): Promise<RankResult[]> {
             MAX(COUNT(*)) OVER (
               PARTITION BY adjective
             )
-          `.as('max_votes')
+          `.as('max_votes'),
         ])
-        .groupBy(['adjective', sql`CASE WHEN left_wins = true THEN "left" ELSE "right" END`])
+        .groupBy([
+          'adjective',
+          sql`CASE WHEN left_wins = true THEN "left" ELSE "right" END`,
+        ])
         .as('ranked_votes')
     )
     .select(['adjective', 'winning_url', 'vote_count', 'rank', 'max_votes'])
-    .where('rank', '<=', 10)  
+    .where('rank', '<=', 10)
     .orderBy(sql`max_votes DESC, adjective, vote_count DESC`)
     .execute()
 
+  await kv.set(TOP_VOTES_KEY, topVotes, { ex: RANK_TTL })
   return topVotes
 }
