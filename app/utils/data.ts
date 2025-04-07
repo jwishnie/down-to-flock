@@ -122,13 +122,19 @@ export const getVoteCount = async function (exact = false) {
   return fromStore
 }
 
-type VoteRank = {
+interface RankResult {
   adjective: string
   winning_url: string
   vote_count: number
 }
-export const getVoteRanking = async function (): Promise<VoteRank[]> {
-  const fromStore = (await kv.get(RANK_KEY)) as VoteRank[] | null
+
+interface VoteRank extends RankResult {
+  rank: number
+  max_votes: number
+}
+
+export const getVoteRanking = async function (): Promise<RankResult[]> {
+  const fromStore = (await kv.get(RANK_KEY)) as RankResult[] | null
   if (fromStore) return fromStore
 
   const ranks = await db
@@ -166,7 +172,7 @@ export const getVoteRanking = async function (): Promise<VoteRank[]> {
   return ranks
 }
 
-export const getTopVotesByAdjective = async function (): Promise<Map<string, VoteRank[]>> {
+export const getTopVotesByAdjective = async function (): Promise<RankResult[]> {
   // const fromStore = (await kv.get(TOP_VOTES_KEY)) as Record<string, VoteRank[]> | null
   // if (fromStore) return fromStore
 
@@ -202,18 +208,5 @@ export const getTopVotesByAdjective = async function (): Promise<Map<string, Vot
     .orderBy(sql`max_votes DESC, adjective, vote_count DESC`)
     .execute()
 
-  // Convert array to Map structure with explicit types
-  const result = topVotes.reduce((acc: Map<string, VoteRank[]>, curr: VoteRank) => {
-    if (!acc.has(curr.adjective)) {
-      acc.set(curr.adjective, [])
-    }
-    acc.get(curr.adjective)!.push(curr)
-    return acc
-  }, new Map<string, VoteRank[]>())
-
-  // Convert Map to Record for Redis storage
-  // const resultForStorage = Object.fromEntries(result)
-
-  // await kv.set(TOP_VOTES_KEY, resultForStorage, { ex: RANK_TTL })
-  return result
+  return topVotes
 }
