@@ -42,7 +42,7 @@ export const links: Route.LinksFunction = () => [
 ]
 
 export function Layout({ children }: { children: React.ReactNode }) {
-  const resultsPage = useLocation().pathname.startsWith('/results')
+  const homePage = !['results', 'pecking'].includes(useLocation().pathname.split('/')[1])
   return (
     <html lang="en">
       <head>
@@ -58,13 +58,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
           </div>
           <div className="flex-1 text-center font-bold">Clickens! (beta)</div>
           <div className="flex-1 text-right">
-            {resultsPage ? (
-              <NavLink to="/" >
-                more chicks
-              </NavLink>
-            ) : (
-              <NavLink to="/results">results</NavLink>
-            )}
+            <NavLink to="/">cluck again</NavLink> |
+            <NavLink to="/results">results</NavLink> |
+            <NavLink to="/pecking">pecking order</NavLink>
           </div>
         </div>
         {children}
