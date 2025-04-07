@@ -16,8 +16,9 @@ a {
 }
 
 a.active {
-  @apply text-stone-100;
+  @apply text-stone-100 cursor-default;
   text-decoration: none;
+
 }
 
 .header {
