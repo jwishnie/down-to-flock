@@ -6,8 +6,8 @@ import { useState, useMemo, useEffect, useRef } from 'react'
 export default function Rank({
   loaderData: { rankingArray },
 }: Route.ComponentProps) {
-  const [selectedWord, setSelectedWord] = useState<Word | null>(null)
-  const wordCloudRef = useRef<HTMLDivElement>(null)
+  const [selectedWord, setSelectedWord] = useState<string>('')
+  const mainRef = useRef<HTMLDivElement>(null)
 
   const rankingMap = Map.groupBy(rankingArray, (row) => row.adjective)
 
@@ -15,34 +15,19 @@ export default function Rank({
   const words = useMemo(() => {
     if (!rankingArray) return []
 
-    return [...rankingMap.values()].slice(1, 201).map((ranks) => ({
+    return [...rankingMap.values()].slice(1, 251).map((ranks) => ({
       text: ranks[0].adjective,
-      value: ranks[0].vote_count * 20,
+      value: ranks[0].vote_count * 10,
     }))
   }, [rankingArray])
 
-  // Reset selected word when clicking outside the WordCloud
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        wordCloudRef.current &&
-        !wordCloudRef.current.contains(event.target as Node)
-      ) {
-        setSelectedWord(null)
-      }
-    }
-
-    document.addEventListener('click', handleClickOutside)
-    return () => document.removeEventListener('click', handleClickOutside)
-  }, [wordCloudRef])
-
   const onWordClick = (word: Word) => {
-    setSelectedWord(word)
+    setSelectedWord(word.text)
   }
 
   return (
     <main className="container mx-auto py-8">
-      <div ref={wordCloudRef} className="pb-6">
+      <div className="pb-6">
         <WordCloud
           width={800}
           height={300}
@@ -51,26 +36,36 @@ export default function Rank({
           transition="all 0.01s linear"
         />
       </div>
-      <h1 className="text-3xl font-bold text-center mb-8">
+      <h1 className="text-3xl font-bold text-center">
         {selectedWord
-          ? `the most ${selectedWord.text.toLocaleUpperCase()}`
+          ? `the most ${selectedWord.toLocaleUpperCase()}`
           : 'The Mostests'}
       </h1>
+
+      <div className="text-center mb-8">
+        {selectedWord && (
+          <span
+            onClick={() => setSelectedWord('')}
+            className="cursor-pointer underline"
+          >
+            back to mostest
+          </span>
+        )}
+      </div>
+
       {selectedWord ? (
         <div className="grid grid-cols-1 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-5 gap-4 justify-items-center">
-          {rankingMap
-            .get(selectedWord.text)
-            ?.map(({ winning_url, vote_count }) => (
-              <div
-                key={`${selectedWord.text}-${winning_url}`}
-                className="flex flex-col items-center justify-center gap-1"
-              >
-                <img className="max-w-[100px] h-auto" src={winning_url} />
-                <span className="text-center text-sm">
-                  {vote_count} appraisals
-                </span>
-              </div>
-            ))}
+          {rankingMap.get(selectedWord)?.map(({ winning_url, vote_count }) => (
+            <div
+              key={`${selectedWord}-${winning_url}`}
+              className="flex flex-col items-center justify-center gap-1"
+            >
+              <img className="max-w-[100px] h-auto" src={winning_url} />
+              <span className="text-center text-sm">
+                {vote_count} appraisals
+              </span>
+            </div>
+          ))}
         </div>
       ) : (
         [...rankingMap.values()].slice(1, 11).map((ranks) => {
@@ -80,8 +75,14 @@ export default function Rank({
               key={adjective}
               className="flex items-center justify-center gap-x-5 py-3 w-full"
             >
-              <img className="max-w-32" src={winning_url} /> is the MOST{' '}
-              {adjective} ({vote_count} appraisals)
+              <img
+                className="max-w-32 cursor-pointer"
+                src={winning_url}
+                onClick={(e) => {
+                  setSelectedWord(adjective)
+                }}
+              />{' '}
+              is the MOST {adjective} ({vote_count} appraisals)
             </div>
           )
         })
