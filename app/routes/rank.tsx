@@ -61,7 +61,7 @@ export default function Rank({
             .get(selectedWord.text)
             ?.map(({ winning_url, vote_count }) => (
               <div
-                key={winning_url}
+                key={`${selectedWord.text}-${winning_url}`}
                 className="flex items-center justify-center gap-x-5 py-3 w-full"
               >
                 <img className="max-w-32" src={winning_url} /> {vote_count}{' '}
