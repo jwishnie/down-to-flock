@@ -53,13 +53,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         <div className="flex items-center w-full px-2">
-          <div className="flex-shrink-0 flex-grow-0 w-1/4">
+          <div className="flex-shrink-0 flex-grow-0 w-2/5">
             <a href="https://chicken.pics">see all chicken pics</a>
           </div>
-          <div className="flex-shrink-0 flex-grow-0 w-1/2">
+          <div className="flex-shrink-0 flex-grow-0 w-1/5">
             <div className="text-center font-bold">Clickens! (beta)</div>
           </div>
-          <div className="flex-shrink-0 flex-grow-0 w-1/4">
+          <div className="flex-shrink-0 flex-grow-0 w-2/5 justify-end text-right">
             <NavLink to="/">cluck again</NavLink> |
             <NavLink to="/results">results</NavLink> |
             <NavLink to="/pecking">pecking order</NavLink>
