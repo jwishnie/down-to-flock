@@ -48,42 +48,51 @@ export default function Rank({
             onClick={() => setSelectedWord('')}
             className="cursor-pointer underline"
           >
-            back to mostest
+            back to the mostests
           </span>
         )}
       </div>
 
       {selectedWord ? (
-        <div className="justify-items-center">
+        <div className="w-full">
           {rankingMap.get(selectedWord)?.map(({ winning_url, vote_count }) => (
             <div
               key={`${selectedWord}-${winning_url}`}
-              className="flex items-center justify-center gap-x-5 py-3 w-full"
+              className="flex items-center gap-3 mb-5"
             >
-              <img className="max-w-32 cursor-pointer" src={winning_url} />
-              {vote_count} appraisals
+              <div className="flex-1 flex items-center justify-end">
+                <img className="max-w-32 cursor-pointer" src={winning_url} />
+              </div>
+              <div className="flex-1 flex items-center justify-start">
+                <span>{vote_count} appraisals</span>
+              </div>
             </div>
           ))}
         </div>
       ) : (
-        [...rankingMap.values()].slice(1, 11).map((ranks) => {
-          const { adjective, winning_url, vote_count } = ranks[0]
-          return (
-            <div
-              key={adjective}
-              className="flex items-center justify-center gap-x-5 py-3 w-full"
-            >
-              <img
-                className="max-w-32 cursor-pointer"
-                src={winning_url}
-                onClick={(e) => {
-                  setSelectedWord(adjective)
-                }}
-              />{' '}
-              is the MOST {adjective} ({vote_count} appraisals)
-            </div>
-          )
-        })
+        <div className="w-full">
+          {[...rankingMap.values()].slice(1, 11).map((ranks) => {
+            const { adjective, winning_url, vote_count } = ranks[0]
+            return (
+              <div key={adjective} className="flex items-center gap-3 mb-5">
+                <div className="flex-1 flex items-center justify-end">
+                  <img
+                    className="max-w-32 cursor-pointer"
+                    src={winning_url}
+                    onClick={(e) => {
+                      setSelectedWord(adjective)
+                    }}
+                  />
+                </div>
+                <div className="flex-1 flex items-center justify-start">
+                  <span>
+                    is the MOST {adjective} ({vote_count} appraisals)
+                  </span>
+                </div>
+              </div>
+            )
+          })}
+        </div>
       )}
     </main>
   )
