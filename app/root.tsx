@@ -60,8 +60,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
             <div className="text-center font-bold">Clickens! (beta)</div>
           </div>
           <div className="flex-shrink-0 flex-grow-0 w-2/5 justify-end text-right">
-            <NavLink to="/">cluck again</NavLink> |
-            <NavLink to="/results">results</NavLink> |
+            <NavLink to="/">cluck again</NavLink><span> | </span>
+            <NavLink to="/results">results</NavLink><span> | </span>
             <NavLink to="/pecking">pecking order</NavLink>
           </div>
         </div>
