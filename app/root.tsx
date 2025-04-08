@@ -52,12 +52,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
-        <div className="flex justify-between items-center w-full px-2">
-          <div className="flex-1 text-left">
+        <div className="flex items-center w-full px-2">
+          <div className="flex-shrink-0 flex-grow-0 w-1/4">
             <a href="https://chicken.pics">see all chicken pics</a>
           </div>
-          <div className="flex-1 text-center font-bold">Clickens! (beta)</div>
-          <div className="flex-1 text-right">
+          <div className="flex-shrink-0 flex-grow-0 w-1/2">
+            <div className="text-center font-bold">Clickens! (beta)</div>
+          </div>
+          <div className="flex-shrink-0 flex-grow-0 w-1/4">
             <NavLink to="/">cluck again</NavLink> |
             <NavLink to="/results">results</NavLink> |
             <NavLink to="/pecking">pecking order</NavLink>
