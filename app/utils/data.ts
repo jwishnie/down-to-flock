@@ -71,9 +71,9 @@ interface DbSchema {
 
 export const db = createKysely<DbSchema>()
 
-const CHIX_KEY = 'chix-v11'
-const RANK_KEY = 'rank-v6'
-const TOP_VOTES_KEY = 'top-votes-v12'
+const CHIX_KEY = 'chix-v12'
+const RANK_KEY = 'rank-v7'
+const TOP_VOTES_KEY = 'top-votes-v14'
 const CHIX_PATH = '/repos/jwishnie/down-to-flock/contents/chix'
 const PAGES_PATH = 'https://chix.wishnie.org'
 export type ChickMeta = {
