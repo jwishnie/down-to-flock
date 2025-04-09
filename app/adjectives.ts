@@ -113,7 +113,7 @@ const adjectives = [
   'Gregarious',
   'Grim',
   'Guilty',
-  'Gullible'
+  'Gullible',
   'Hapless',
   'Hard-working',
   'Helpful',
