@@ -71,9 +71,8 @@ interface DbSchema {
 
 export const db = createKysely<DbSchema>()
 
-const CHIX_KEY = 'chix-gh-v9'
+const CHIX_KEY = 'chix-gh-v10'
 const RANK_KEY = 'rank-v5'
-const TOP_VOTES_KEY = 'top-votes-v11PropTypes.node'
 const CHIX_PATH = '/repos/jwishnie/down-to-flock/contents/chix'
 const PAGES_PATH = 'https://chix.wishnie.org'
 export type ChickMeta = {
@@ -122,19 +121,13 @@ export const getVoteCount = async function (exact = false) {
   return fromStore
 }
 
-interface RankResult {
+type VoteRank = {
   adjective: string
   winning_url: string
   vote_count: number
 }
-
-interface VoteRank extends RankResult {
-  rank: number
-  max_votes: number
-}
-
-export const getVoteRanking = async function (): Promise<RankResult[]> {
-  const fromStore = (await kv.get(RANK_KEY)) as RankResult[] | null
+export const getVoteRanking = async function (): Promise<VoteRank[]> {
+  const fromStore = (await kv.get(RANK_KEY)) as VoteRank[] | null
   if (fromStore) return fromStore
 
   const ranks = await db
@@ -177,13 +170,38 @@ export const getVoteRanking = async function (): Promise<RankResult[]> {
   return ranks
 }
 
-export const getTopVotesByAdjective = async function (): Promise<RankResult[]> {
-  const fromStore = (await kv.get(TOP_VOTES_KEY)) as RankResult[] | null
-  if (fromStore) return fromStore
+// Cache key for the top votes by URL
+const TOP_VOTES_BY_URL_KEY = 'top-votes-by-url-v1'
+// Cache TTL for the top votes by URL (30 minutes)
+const TOP_VOTES_TTL = 60 * 30
 
-  const topVotes = await db
-    .selectFrom(
-      db
+/**
+ * Returns the top 10 vote getters per URL as a Map of url -> array of [adjective, url, vote count]
+ * @returns A Map where the key is the URL ("left" or "right") and the value is an array of tuples [adjective, url, vote_count]
+ */
+export const getTopVotesByUrl = async function (): Promise<
+  Map<string, [string, string, number][]>
+> {
+  // Try to get from cache first
+  const fromStore = await kv.get(TOP_VOTES_BY_URL_KEY)
+  if (fromStore) {
+    try {
+      // Parse JSON string and convert to Map
+      const parsed = JSON.parse(fromStore as string) as Record<
+        string,
+        [string, string, number][]
+      >
+      return new Map(Object.entries(parsed))
+    } catch (e) {
+      console.error('Error parsing cached data:', e)
+      // Continue to fetch from database if parsing fails
+    }
+  }
+
+  // Query to get the top 10 vote getters per adjective
+  const votesByUrl = await db
+    .with('vote_counts', (qb) =>
+      qb
         .selectFrom(VOTES_TABLE)
         .select([
           'adjective',
@@ -192,31 +210,84 @@ export const getTopVotesByAdjective = async function (): Promise<RankResult[]> {
               WHEN left_wins = true THEN "left" 
               ELSE "right" 
             END
-          `.as('winning_url'),
+          `.as('url'),
           sql<number>`COUNT(*)`.as('vote_count'),
-          sql<number>`
-            ROW_NUMBER() OVER (
-              PARTITION BY adjective 
-              ORDER BY COUNT(*) DESC
-            )
-          `.as('rank'),
-          sql<number>`
-            MAX(COUNT(*)) OVER (
-              PARTITION BY adjective
-            )
-          `.as('max_votes'),
         ])
         .groupBy([
           'adjective',
           sql`CASE WHEN left_wins = true THEN "left" ELSE "right" END`,
         ])
-        .as('ranked_votes')
     )
-    .select(['adjective', 'winning_url', 'vote_count', 'rank', 'max_votes'])
+    .with('ranked_votes', (qb) =>
+      qb
+        .selectFrom('vote_counts' as any)
+        .select([
+          'adjective',
+          'url',
+          'vote_count',
+          sql<number>`ROW_NUMBER() OVER (PARTITION BY adjective ORDER BY vote_count DESC)`.as(
+            'rank'
+          ),
+        ])
+    )
+    .with('adjective_totals', (qb) =>
+      qb
+        .selectFrom('vote_counts' as any)
+        .select(['adjective', sql<number>`SUM(vote_count)`.as('total_votes')])
+        .groupBy('adjective')
+    )
+    .selectFrom('ranked_votes' as any)
+    .innerJoin(
+      'adjective_totals as at',
+      'ranked_votes.adjective',
+      'at.adjective'
+    )
+    .select([
+      'ranked_votes.adjective as adjective',
+      'ranked_votes.url as url',
+      'ranked_votes.vote_count as vote_count',
+      'at.total_votes as total_votes',
+    ])
     .where('rank', '<=', 10)
-    .orderBy(sql`max_votes DESC, adjective, vote_count DESC`)
+    .orderBy([sql`at.total_votes DESC`, 'ranked_votes.rank'])
     .execute()
 
-  await kv.set(TOP_VOTES_KEY, topVotes, { ex: RANK_TTL })
-  return topVotes
+  // Use a reducer to process the results and group by URL
+  const resultMap = votesByUrl.reduce(
+    (acc, row) => {
+      const url = row.url
+      if (!acc.has(url)) {
+        acc.set(url, [])
+      }
+      const currentArray = acc.get(url)!
+      currentArray.push([row.adjective, url, row.vote_count])
+      return acc
+    },
+    new Map<string, [string, string, number][]>([
+      ['left', []],
+      ['right', []],
+    ])
+  )
+
+  // Cache the results
+  // Convert Map to Record and then store as JSON in Redis
+  const cacheObject = Object.fromEntries(resultMap.entries())
+
+  // Use Redis JSON.SET to store the data
+  try {
+    await kv.json.set(TOP_VOTES_BY_URL_KEY, '$', cacheObject)
+    // Set expiration separately
+    await kv.expire(TOP_VOTES_BY_URL_KEY, TOP_VOTES_TTL)
+  } catch (e) {
+    // Fallback to regular set if JSON functions are not available
+    console.warn(
+      'Redis JSON functions not available, falling back to regular set:',
+      e
+    )
+    await kv.set(TOP_VOTES_BY_URL_KEY, JSON.stringify(cacheObject), {
+      ex: TOP_VOTES_TTL,
+    })
+  }
+
+  return resultMap
 }
