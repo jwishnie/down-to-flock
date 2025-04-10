@@ -2,14 +2,19 @@ import { getTopVotesByAdjective } from '~/utils/data'
 import type { Route } from '../routes/+types/rank'
 import { type Word, WordCloud } from '@isoterik/react-word-cloud'
 import { useState, useMemo, useEffect, useRef } from 'react'
+import { useNavigate } from 'react-router'
 
 export default function Rank({
-  loaderData: { rankingArray },
+  loaderData: { rankingArray, adjective },
 }: Route.ComponentProps) {
   const [selectedWord, setSelectedWord] = useState<string>('')
-  const mainRef = useRef<HTMLDivElement>(null)
+  useEffect(() => setSelectedWord(adjective || ''), [adjective])
+  const nav = useNavigate()
 
-  const rankingMap = Map.groupBy(rankingArray, (row) => row.adjective)
+  const rankingMap: Map<string, typeof rankingArray> = Map.groupBy(
+    rankingArray,
+    (r: (typeof rankingArray)[0]) => r.adjective
+  )
 
   // Memoize the words array with direct calculation
   const words = useMemo(() => {
@@ -22,7 +27,7 @@ export default function Rank({
   }, [rankingArray])
 
   const onWordClick = (word: Word) => {
-    setSelectedWord(word.text)
+    nav(`/pecking/${word.text}`)
   }
 
   return (
@@ -45,7 +50,7 @@ export default function Rank({
       <div className="text-center mb-8">
         {selectedWord && (
           <span
-            onClick={() => setSelectedWord('')}
+            onClick={() => onWordClick({ text: '', value: 0 })}
             className="cursor-pointer underline"
           >
             back to the mostests
@@ -98,7 +103,8 @@ export default function Rank({
   )
 }
 
-export async function loader({ params: { page } }: Route.LoaderArgs) {
+export async function loader({ params: { adjective } }: Route.LoaderArgs) {
+  console.log(adjective)
   const rankingArray = await getTopVotesByAdjective()
-  return { rankingArray }
+  return { rankingArray, adjective }
 }
