@@ -1,7 +1,7 @@
 import { type RouteConfig, prefix, route } from '@react-router/dev/routes'
 
 export default [
-  route('/pecking/:adjective?', 'routes/rank.tsx'),
+  route('/pecking/:adjective?', 'routes/peckingOrder.tsx'),
   route('/results/:page?', 'routes/tally.tsx'),
   ...(import.meta.env.NODE_ENV !== 'production'
     ? prefix('db', [

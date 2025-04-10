@@ -1,17 +1,17 @@
-import { getTopVotesByAdjective } from '~/utils/data'
-import type { Route } from '../routes/+types/rank'
+import { getTopVotesByAdjective, type RankResult } from '~/utils/data'
+import type { Route } from './+types/peckingOrder'
 import { type Word, WordCloud } from '@isoterik/react-word-cloud'
-import { useState, useMemo, useEffect, useRef } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useNavigate } from 'react-router'
 
-export default function Rank({
+export default function PeckingOrder({
   loaderData: { rankingArray, adjective },
 }: Route.ComponentProps) {
   const [selectedWord, setSelectedWord] = useState<string>('')
   useEffect(() => setSelectedWord(adjective || ''), [adjective])
   const nav = useNavigate()
 
-  const rankingMap: Map<string, typeof rankingArray> = Map.groupBy(
+  const rankingMap: Map<string, RankResult[]> = Map.groupBy(
     rankingArray,
     (r: (typeof rankingArray)[0]) => r.adjective
   )
@@ -104,7 +104,6 @@ export default function Rank({
 }
 
 export async function loader({ params: { adjective } }: Route.LoaderArgs) {
-  console.log(adjective)
   const rankingArray = await getTopVotesByAdjective()
   return { rankingArray, adjective }
 }

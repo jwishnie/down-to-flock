@@ -122,7 +122,7 @@ export const getVoteCount = async function (exact = false) {
   return fromStore
 }
 
-interface RankResult {
+export interface RankResult {
   adjective: string
   winning_url: string
   vote_count: number
