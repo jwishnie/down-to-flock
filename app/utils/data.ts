@@ -71,7 +71,7 @@ interface DbSchema {
 
 export const db = createKysely<DbSchema>()
 
-const CHIX_KEY = 'chix-v12'
+const CHIX_KEY = 'chix-v13'
 const RANK_KEY = 'rank-v7'
 const TOP_VOTES_KEY = 'top-votes-v14'
 const CHIX_PATH = '/repos/jwishnie/down-to-flock/contents/chix'
