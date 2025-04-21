@@ -92,7 +92,7 @@ export async function action({
   const voteCount = await iVoted()
 
   if (
-    process.env.CF_INTERSITIAL === 'yes' &&
+    process.env.CF_INTERSTITIAL === 'yes' &&
     voteCount % PITCH_CF_EVERY === 0
   ) {
     return redirect('/cff')
