@@ -220,3 +220,9 @@ export const getTopVotesByAdjective = async function (): Promise<RankResult[]> {
   await kv.set(TOP_VOTES_KEY, topVotes, { ex: RANK_TTL })
   return topVotes
 }
+
+const VOTE_COUNT_KEY = 'voteCount'
+export const iVoted = async function () {
+  const currentCount = safeParseInt(await kv.incr(VOTE_COUNT_KEY))
+  return currentCount || 0
+}

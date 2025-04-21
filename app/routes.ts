@@ -10,4 +10,5 @@ export default [
       ])
     : []),
   route('/:adjective?/:left?/:right?/:vote?', 'routes/home.tsx'),
+  route('/cff', 'routes/cff.tsx'),
 ] satisfies RouteConfig

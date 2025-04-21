@@ -7,7 +7,7 @@ import { useEffect } from 'react'
 import { redirect, useLocation, useSubmit } from 'react-router'
 import adjectives from '~/adjectives'
 import titles from '~/titles'
-import { db, getChix, VOTES_TABLE } from '~/utils/data'
+import { db, getChix, iVoted, VOTES_TABLE } from '~/utils/data'
 import { safeParseInt } from '~/utils/general'
 
 // return values are 1s based
@@ -55,6 +55,8 @@ export async function loader({
   }
 }
 
+const PITCH_CF_EVERY = 10
+
 export async function action({
   request,
   params: { adjective, left, right },
@@ -79,12 +81,19 @@ export async function action({
   await db
     .insertInto(VOTES_TABLE)
     .values({
-      adjective: adjective || '', // for typescript, if empty route wouldn't have reached here
+      adjective: adjective!, // for typescript, if empty route wouldn't have reached here
       left: leftChick.src,
       right: rightChick.src,
       left_wins: vote === 'l',
     })
     .execute()
+
+  // check if interstitial time
+  const voteCount = await iVoted()
+  console.log(voteCount)
+  if (voteCount % PITCH_CF_EVERY === 0) {
+    return redirect('/cff')
+  }
 
   // pick next battle
   const {
@@ -130,11 +139,8 @@ export default function Home({
           <span>Suggest an adjective or just say hello</span>
         </a>
         &nbsp;|&nbsp;
-        <a
-          className="text-sm"
-          href="https://www.chicken.pics/store"
-        >
-          <span>Bok Buys!</span>  
+        <a className="text-sm" href="https://www.chicken.pics/store">
+          <span>Bok Buys!</span>
         </a>
       </div>
     </div>

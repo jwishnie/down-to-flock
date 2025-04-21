@@ -1,0 +1,83 @@
+import splash from '~/assets/tavie-and-me.jpg'
+import cff from '~/assets/cff.png'
+import strides from '~/assets/great-strides.png'
+
+export default function CFF() {
+  return (
+    <main className="container mx-auto py-8">
+      <div className="text-sm  flex flex-col items-center justify-center px-6 gap-5 text-center">
+        <div className="header ">
+          Enjoying the Chickens?
+          <br />
+          <a
+            href="https://fundraise.cff.org/PDXGS2025/axolotlunicorns"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Donate to a Cause!
+          </a>
+        </div>
+
+        <a
+          className="flex items-center justify-center gap-2"
+          href="https://fundraise.cff.org/PDXGS2025/axolotlunicorns"
+          target="_blank"
+          rel="noreferrer"
+        >
+          <img src={cff} className="w-1/6" />
+          <img src={strides} className="w-1/6" />
+        </a>
+        <img src={splash} className="w-lg" />
+        <div className="text-justify w-lg ">
+          <span>
+            Hi, I'm Jeff. I built this corner of Chickentown. That's my kid
+            Tavie, a force of nature, which is good, because Tavie has{' '}
+          </span>
+          <span>
+            <a
+              href="https://www.cff.org/intro-cf/about-cystic-fibrosis"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Cystic Fibrosis
+            </a>{' '}
+            (CF)
+          </span>
+          , and having CF can be tough.
+        </div>
+        <div className="text-justify w-lg">
+          Good thing there is a foundation that funds research that led to a{' '}
+          <a
+            href="https://www.theatlantic.com/magazine/archive/2024/04/cystic-fibrosis-trikafta-breakthrough-treatment/677471/"
+            target="_blank"
+            rel="noreferrer"
+          >
+            miracle treatment
+          </a>{' '}
+          for ~90% of people with CF, including Tavie.
+        </div>
+        <div className="text-justify w-lg ">
+          But we need more research (research = money) to find treatments for
+          everyone, and a cure for all. So I'm interrupting your chickens to ask
+          you to pitch in (
+          <a
+            href="https://fundraise.cff.org/PDXGS2025/axolotlunicorns"
+            target="_blank"
+            rel="noreferrer"
+          >
+            that means give money
+          </a>
+          ).
+        </div>
+        <div className="text-justify w-lg ">
+          Thanks for reading. <a href="/">Back to the chickens!</a>
+        </div>
+      </div>
+    </main>
+  )
+}
+
+// export async function loader({ params: { adjective } }: Route.LoaderArgs) {
+//   const rankingArray = await getTopVotesByAdjective()
+//   return { rankingArray, adjective }
+// }
