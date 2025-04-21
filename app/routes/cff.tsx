@@ -24,11 +24,11 @@ export default function CFF() {
           target="_blank"
           rel="noreferrer"
         >
-          <img src={cff} className="w-1/6" />
-          <img src={strides} className="w-1/6" />
+          <img src={cff} className="w-1/4" />
+          <img src={strides} className="w-1/4" />
         </a>
         <img src={splash} className="w-lg" />
-        <div className="text-justify w-lg ">
+        <div className="text-justify">
           <span>
             Hi, I'm Jeff. I built this corner of Chickentown. That's my kid
             Tavie, a force of nature, which is good, because Tavie has{' '}
@@ -45,7 +45,7 @@ export default function CFF() {
           </span>
           , and having CF can be tough.
         </div>
-        <div className="text-justify w-lg">
+        <div className="text-justify">
           Good thing there is a foundation that funds research that led to a{' '}
           <a
             href="https://www.theatlantic.com/magazine/archive/2024/04/cystic-fibrosis-trikafta-breakthrough-treatment/677471/"
@@ -56,7 +56,7 @@ export default function CFF() {
           </a>{' '}
           for ~90% of people with CF, including Tavie.
         </div>
-        <div className="text-justify w-lg ">
+        <div className="text-justify  ">
           But we need more research (research = money) to find treatments for
           everyone, and a cure for all. So I'm interrupting your chickens to ask
           you to pitch in (
@@ -69,7 +69,7 @@ export default function CFF() {
           </a>
           ).
         </div>
-        <div className="text-justify w-lg ">
+        <div className="text-justify ">
           Thanks for reading. <a href="/">Back to the chickens!</a>
         </div>
       </div>
