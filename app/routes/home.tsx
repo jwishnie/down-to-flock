@@ -90,8 +90,11 @@ export async function action({
 
   // check if interstitial time
   const voteCount = await iVoted()
-  console.log(voteCount)
-  if (voteCount % PITCH_CF_EVERY === 0) {
+
+  if (
+    process.env.CF_INTERSITIAL === 'yes' &&
+    voteCount % PITCH_CF_EVERY === 0
+  ) {
     return redirect('/cff')
   }
 
