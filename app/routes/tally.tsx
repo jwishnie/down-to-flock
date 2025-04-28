@@ -29,25 +29,37 @@ export default function Tally({
 }: Route.ComponentProps) {
   const nav = useNavigate()
   const [page, setPage] = useState(currentPage)
-  
+
   const handlePageSelected = (selectedPage: number) => {
     setPage(selectedPage)
     nav(`/results/${selectedPage}`)
   }
-  
+
   const voteItems = votes.length
     ? votes
         .slice(ROWS_PER_PAGE * (page - 1), ROWS_PER_PAGE * page)
         .map(({ adjective, left, right, left_wins, id }) => (
           <div
             key={id}
-            className="flex items-center justify-center gap-x-5 py-3 w-full"
+            className="flex items-center justify-around gap-2 w-full"
           >
-            <img className="max-w-32" src={left_wins ? left : right} />
-            <div className="w-fit text-center min-w-70">
+            <div>
+              <img
+                alt="Chicken 1"
+                className="max-w-32"
+                src={left_wins ? left : right}
+              />
+            </div>
+            <div className="text-center break-all">
               is more {adjective} than
             </div>
-            <img className="max-w-32" src={left_wins ? right : left} />
+            <div>
+              <img
+                alt="Chicken 2"
+                className="max-w-32"
+                src={left_wins ? right : left}
+              />
+            </div>
           </div>
         ))
     : ''
@@ -59,9 +71,17 @@ export default function Tally({
       <div className="subheader flex items-center justify-center pb-6">
         ~{(Math.floor(totalVotes! / 10) * 10).toLocaleString()} appraisals
       </div>
-      <Pagination currentPage={page} numPages={numPages} onSelected={handlePageSelected} />
-      <div className='pb-4'>{voteItems}</div>
-      <Pagination currentPage={page} numPages={numPages} onSelected={handlePageSelected} />
+      <Pagination
+        currentPage={page}
+        numPages={numPages}
+        onSelected={handlePageSelected}
+      />
+      <div className="pb-4 flex flex-col gap-4">{voteItems}</div>
+      <Pagination
+        currentPage={page}
+        numPages={numPages}
+        onSelected={handlePageSelected}
+      />
     </div>
   )
 }

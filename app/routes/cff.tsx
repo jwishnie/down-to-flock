@@ -12,7 +12,7 @@ export default function CFF() {
           <a
             href="https://fundraise.cff.org/PDXGS2025/axolotlunicorns"
             target="_blank"
-            rel="noreferrer"
+            rel="noreferrer noopener"
           >
             Donate to a Cause!
           </a>
@@ -22,12 +22,12 @@ export default function CFF() {
           className="flex items-center justify-center gap-2"
           href="https://fundraise.cff.org/PDXGS2025/axolotlunicorns"
           target="_blank"
-          rel="noreferrer"
+          rel="noreferrer noopener"
         >
-          <img src={cff} className="w-1/4" />
-          <img src={strides} className="w-1/4" />
+          <img alt="Cystic Fibrosis Foundation" src={cff} className="w-1/4" />
+          <img alt="Great Strides" src={strides} className="w-1/4" />
         </a>
-        <img src={splash} className="w-lg" />
+        <img alt="Tavie and Jeff" src={splash} className="w-lg" />
         <div className="text-justify">
           <span>
             Hi, I'm Jeff. I built this corner of Chickentown. That's my kid
@@ -37,7 +37,7 @@ export default function CFF() {
             <a
               href="https://www.cff.org/intro-cf/about-cystic-fibrosis"
               target="_blank"
-              rel="noreferrer"
+              rel="noreferrer noopener"
             >
               Cystic Fibrosis
             </a>{' '}
@@ -50,7 +50,7 @@ export default function CFF() {
           <a
             href="https://www.theatlantic.com/magazine/archive/2024/04/cystic-fibrosis-trikafta-breakthrough-treatment/677471/"
             target="_blank"
-            rel="noreferrer"
+            rel="noreferrer noopener"
           >
             miracle treatment
           </a>{' '}
@@ -63,7 +63,7 @@ export default function CFF() {
           <a
             href="https://fundraise.cff.org/PDXGS2025/axolotlunicorns"
             target="_blank"
-            rel="noreferrer"
+            rel="noreferrer noopener"
           >
             that means give money
           </a>
