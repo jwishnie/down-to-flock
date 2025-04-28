@@ -50,7 +50,7 @@ export default function Tally({
                 src={left_wins ? left : right}
               />
             </div>
-            <div className="text-center break-all">
+            <div className="text-center">
               is more {adjective} than
             </div>
             <div>
