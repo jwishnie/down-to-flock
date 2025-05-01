@@ -41,7 +41,7 @@ export default function Tally({
         .map(({ adjective, left, right, left_wins, id }) => (
           <div
             key={id}
-            className="flex items-center justify-around gap-2 w-full"
+            className="flex items-center justify-center gap-2 w-full"
           >
             <div>
               <img
@@ -50,7 +50,7 @@ export default function Tally({
                 src={left_wins ? left : right}
               />
             </div>
-            <div className="text-center">
+            <div className="text-center basis-3xs grow-0 shrink-1">
               is more {adjective} than
             </div>
             <div>
