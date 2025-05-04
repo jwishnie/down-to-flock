@@ -4,6 +4,7 @@ import { getVoteCount, getVotes } from '~/utils/data'
 import { safeParseInt } from '~/utils/general'
 import type { Route } from './+types/tally'
 import { Pagination } from '~/components/Pagination'
+import React from 'react'
 
 const ROWS_PER_PAGE = 25
 const MAX_PAGES = 30
@@ -35,34 +36,35 @@ export default function Tally({
     nav(`/results/${selectedPage}`)
   }
 
-  const voteItems = votes.length
-    ? votes
+  const chickGrid = votes.length ? (
+    <div className="grid grid-cols-[1fr_minmax(32px,256px)_1fr] mx-auto gap-4">
+      {votes
         .slice(ROWS_PER_PAGE * (page - 1), ROWS_PER_PAGE * page)
         .map(({ adjective, left, right, left_wins, id }) => (
-          <div
-            key={id}
-            className="flex items-center justify-center gap-2 w-full"
-          >
-            <div>
+          <React.Fragment key={id}>
+            <div className="flex justify-end">
               <img
                 alt="Chicken 1"
                 className="max-w-32"
                 src={left_wins ? left : right}
               />
             </div>
-            <div className="text-center basis-3xs grow-0 shrink-1">
+            <div className="text-center flex items-center justify-center h-full">
               is more {adjective} than
             </div>
-            <div>
+            <div className="flex justify-start">
               <img
                 alt="Chicken 2"
                 className="max-w-32"
                 src={left_wins ? right : left}
               />
             </div>
-          </div>
-        ))
-    : ''
+          </React.Fragment>
+        ))}
+    </div>
+  ) : (
+    ''
+  )
   return (
     <div className="px-2">
       <div className="header flex items-center justify-center pt-6">
@@ -76,7 +78,7 @@ export default function Tally({
         numPages={numPages}
         onSelected={handlePageSelected}
       />
-      <div className="pb-4 flex flex-col gap-4">{voteItems}</div>
+      {chickGrid}
       <Pagination
         currentPage={page}
         numPages={numPages}
