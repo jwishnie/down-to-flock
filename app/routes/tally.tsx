@@ -36,9 +36,8 @@ export default function Tally({
     nav(`/results/${selectedPage}`)
   }
 
-  const chickGrid = votes.length ? (
-    <div className="grid grid-cols-[1fr_minmax(32px,256px)_1fr] mx-auto gap-4">
-      {votes
+  const chickGrid = votes.length
+    ? votes
         .slice(ROWS_PER_PAGE * (page - 1), ROWS_PER_PAGE * page)
         .map(({ adjective, left, right, left_wins, id }) => (
           <React.Fragment key={id}>
@@ -60,11 +59,8 @@ export default function Tally({
               />
             </div>
           </React.Fragment>
-        ))}
-    </div>
-  ) : (
-    ''
-  )
+        ))
+    : ''
   return (
     <div className="px-2">
       <div className="header flex items-center justify-center pt-6">
@@ -78,7 +74,9 @@ export default function Tally({
         numPages={numPages}
         onSelected={handlePageSelected}
       />
-      {chickGrid}
+      <div className="grid grid-cols-[1fr_minmax(32px,256px)_1fr] mx-auto gap-4 pb-3">
+        {chickGrid}
+      </div>
       <Pagination
         currentPage={page}
         numPages={numPages}
