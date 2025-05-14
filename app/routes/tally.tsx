@@ -74,7 +74,7 @@ export default function Tally({
         numPages={numPages}
         onSelected={handlePageSelected}
       />
-      <div className="grid grid-cols-[minmax(min-content,1fr)_minmax(min-content,16rem)_minmax(min-content,1fr)] mx-auto gap-4 pb-3">
+      <div className="grid grid-cols-[minmax(min-content,1fr)_minmax(min-content,1fr)_minmax(min-content,1fr)] mx-auto gap-4 pb-3">
         {chickGrid}
       </div>
       <Pagination
