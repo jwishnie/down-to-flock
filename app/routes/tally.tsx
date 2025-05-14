@@ -44,7 +44,7 @@ export default function Tally({
             <div className="flex justify-end">
               <img
                 alt="Chicken 1"
-                className="max-w-16 sm:max-w-32 md:max-w-48 aspect-square"
+                className="max-w-24 sm:max-w-36 lg:max-w-64 aspect-square"
                 src={left_wins ? left : right}
               />
             </div>
@@ -54,7 +54,7 @@ export default function Tally({
             <div className="flex justify-start">
               <img
                 alt="Chicken 2"
-                className="max-w-16 sm:max-w-32 md:max-w-48 aspect-square"
+                className="max-w-24 sm:max-w-36 lg:max-w-64 aspect-square"
                 src={left_wins ? right : left}
               />
             </div>
