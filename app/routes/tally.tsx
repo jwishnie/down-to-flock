@@ -44,7 +44,7 @@ export default function Tally({
             <div className="flex justify-end">
               <img
                 alt="Chicken 1"
-                className="max-w-32"
+                className="max-w-8 sm:max-w-32 md:max-w-48"
                 src={left_wins ? left : right}
               />
             </div>
@@ -54,7 +54,7 @@ export default function Tally({
             <div className="flex justify-start">
               <img
                 alt="Chicken 2"
-                className="max-w-32"
+                className="max-w-8 sm:max-w-32 md:max-w-48"
                 src={left_wins ? right : left}
               />
             </div>
@@ -74,7 +74,7 @@ export default function Tally({
         numPages={numPages}
         onSelected={handlePageSelected}
       />
-      <div className="grid grid-cols-[1fr_minmax(min-content,16rem)_1fr] mx-auto gap-4 pb-3">
+      <div className="grid grid-cols-[minmax(min-content,1fr)_minmax(min-content,16rem)_minmax(min-content,1fr)] mx-auto gap-4 pb-3">
         {chickGrid}
       </div>
       <Pagination
