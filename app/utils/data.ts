@@ -226,3 +226,7 @@ export const iVoted = async function () {
   const currentCount = safeParseInt(await kv.incr(VOTE_COUNT_KEY))
   return currentCount || 0
 }
+
+export const voteCount = async function () {
+  return safeParseInt(await kv.get(VOTE_COUNT_KEY)) || 0
+}

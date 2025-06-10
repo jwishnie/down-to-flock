@@ -7,8 +7,10 @@ import { useEffect } from 'react'
 import { redirect, useLocation, useSubmit } from 'react-router'
 import adjectives from '~/adjectives'
 import titles from '~/titles'
-import { db, getChix, iVoted, VOTES_TABLE } from '~/utils/data'
+import { db, getChix, iVoted, voteCount, VOTES_TABLE } from '~/utils/data'
 import { safeParseInt } from '~/utils/general'
+import bokSound from '~/assets/bok.ogg'
+import { useAudio } from './hook'
 
 // return values are 1s based
 const pickYourBattle = async function (numChix: number) {
@@ -52,10 +54,12 @@ export async function loader({
     adjective: adjective,
     left: leftChick,
     right: rightChick,
+    voteCount: await voteCount(),
   }
 }
 
 const PITCH_CF_EVERY = 10
+const BOK_EVERY = 7
 
 export async function action({
   request,
@@ -109,15 +113,20 @@ export async function action({
 }
 
 export default function Home({
-  loaderData: { title, adjective, left, right },
+  loaderData: { title, adjective, left, right, voteCount },
 }: Route.ComponentProps) {
+  const { play: playBok } = useAudio(bokSound)
+
   useEffect(() => {
     document.title = title
   })
 
   const submit = useSubmit()
   const path = useLocation().pathname
-  const vote = function (v: boolean) {
+  const vote = async function (v: boolean) {
+    if ((voteCount + 1) % BOK_EVERY === 0) {
+      await playBok()
+    }
     submit({ vote: v ? 'l' : 'r' }, { action: `${path}`, method: 'post' })
   }
   return (
