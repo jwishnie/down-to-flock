@@ -1,4 +1,5 @@
-import splash from '~/assets/tavie-and-me.jpg'
+// import splash from '~/assets/tavie-and-me.jpg'
+import splash from '~/assets/tavie-chick.jpg'
 import cff from '~/assets/cff.png'
 import strides from '~/assets/great-strides.png'
 
@@ -27,7 +28,7 @@ export default function CFF() {
           <img alt="Cystic Fibrosis Foundation" src={cff} className="w-1/4" />
           <img alt="Great Strides" src={strides} className="w-1/4" />
         </a>
-        <img alt="Tavie and Jeff" src={splash} className="w-lg" />
+        <img alt="Tavie is a chicken" src={splash} className="w-lg" />
         <div className="text-justify">
           <span>
             Hi, I'm Jeff. I built this corner of Chickentown. That's my kid
