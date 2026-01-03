@@ -11,7 +11,7 @@ export default function CFF() {
           Enjoying the Chickens?
           <br />
           <a
-            href="https://fundraise.cff.org/PDXGS2025/axolotlunicorns"
+            href="https://give.cff.org/annualfund/clickensforacure"
             target="_blank"
             rel="noreferrer noopener"
           >
@@ -62,7 +62,7 @@ export default function CFF() {
           everyone, and a cure for all. So I'm interrupting your chickens to ask
           you to pitch in (
           <a
-            href="https://fundraise.cff.org/PDXGS2025/axolotlunicorns"
+            href="https://give.cff.org/annualfund/clickensforacure"
             target="_blank"
             rel="noreferrer noopener"
           >
