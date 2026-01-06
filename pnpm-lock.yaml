@@ -11,6 +11,9 @@ importers:
       '@isoterik/react-word-cloud':
         specifier: ^1.3.0
         version: 1.3.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      '@neondatabase/serverless':
+        specifier: ^1.0.2
+        version: 1.0.2
       '@octokit/core':
         specifier: ^6.1.6
         version: 6.1.6
@@ -26,9 +29,6 @@ importers:
       '@upstash/redis':
         specifier: ^1.36.0
         version: 1.36.0
-      '@vercel/postgres-kysely':
-        specifier: ^0.10.0
-        version: 0.10.0(kysely@0.27.6)
       '@vercel/react-router':
         specifier: ^1.2.4
         version: 1.2.4(@react-router/dev@7.11.0(@react-router/serve@7.11.0(react-router@7.11.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(typescript@5.9.3))(@types/node@20.19.27)(jiti@2.6.1)(lightningcss@1.30.2)(react-router@7.11.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(typescript@5.9.3)(vite@6.4.1(@types/node@20.19.27)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.7.1))(yaml@2.7.1))(@react-router/node@7.11.0(react-router@7.11.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(typescript@5.9.3))(isbot@5.1.32)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
@@ -39,8 +39,11 @@ importers:
         specifier: ^5.1.32
         version: 5.1.32
       kysely:
-        specifier: ^0.27.6
-        version: 0.27.6
+        specifier: ^0.28.0
+        version: 0.28.9
+      kysely-neon:
+        specifier: ^2.0.2
+        version: 2.0.2(@neondatabase/serverless@1.0.2)(kysely@0.28.9)
       lodash-es:
         specifier: ^4.17.22
         version: 4.17.22
@@ -419,8 +422,9 @@ packages:
   '@mjackson/node-fetch-server@0.2.0':
     resolution: {integrity: sha512-EMlH1e30yzmTpGLQjlFmaDAjyOeZhng1/XCd7DExR8PNAnG/G1tyruZxEoUe11ClnwGhGrtsdnyyUx1frSzjng==}
 
-  '@neondatabase/serverless@0.9.5':
-    resolution: {integrity: sha512-siFas6gItqv6wD/pZnvdu34wEqgG3nSE6zWZdq5j2DEsa+VvX8i/5HXJOo06qrw5axPXn+lGCxeR+NLaSPIXug==}
+  '@neondatabase/serverless@1.0.2':
+    resolution: {integrity: sha512-I5sbpSIAHiB+b6UttofhrN/UJXII+4tZPAq1qugzwCwLIL8EZLV7F/JyHUrEIiGgQpEXzpnjlJ+zwcEhheGvCw==}
+    engines: {node: '>=19.0.0'}
 
   '@nodelib/fs.scandir@2.1.5':
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
@@ -740,6 +744,9 @@ packages:
   '@types/node@20.19.27':
     resolution: {integrity: sha512-N2clP5pJhB2YnZJ3PIHFk5RkygRX5WO/5f0WC08tp0wd+sv0rsJk3MqWn3CbNmT2J505a5336jaQj4ph1AdMug==}
 
+  '@types/node@22.19.3':
+    resolution: {integrity: sha512-1N9SBnWYOJTrNZCdh/yJE+t910Y128BoyY+zBLWhL3r0TYzlTmFdXrPwHL9DyFZmlEXNQQolTZh3KHV31QDhyA==}
+
   '@types/pg@8.11.6':
     resolution: {integrity: sha512-/2WmmBXHLsfRqzfHW7BNZ8SbYzE8OSk7i3WjFYvfgRHj7S1xj+16Je5fUKv3lVdVzk/zn9TXOqf+avFCFIE0yQ==}
 
@@ -756,16 +763,6 @@ packages:
 
   '@upstash/redis@1.36.0':
     resolution: {integrity: sha512-9zN2UV9QJGPnXfWU3yZBLVQaqqENDh7g+Y4J2vJuSxBCi9FQ0aUOtaXlzuFhnsiZvCqM+eS27ic+tgmkWUsfOg==}
-
-  '@vercel/postgres-kysely@0.10.0':
-    resolution: {integrity: sha512-X1kjLBvjLzE2gdWYSAxFWiRj9SxLYQWZFqIhzNVGG1VqJ8ROxoGiYhPPJrmIC+XACwDuK4SVB0EbFTEcaeO/pQ==}
-    engines: {node: '>=18.14'}
-    peerDependencies:
-      kysely: ^0.24.2 || ^0.25.0 || ^0.26.0 || ^0.27.0
-
-  '@vercel/postgres@0.10.0':
-    resolution: {integrity: sha512-fSD23DxGND40IzSkXjcFcxr53t3Tiym59Is0jSYIFpG4/0f0KO9SGtcp1sXiebvPaGe7N/tU05cH4yt2S6/IPg==}
-    engines: {node: '>=18.14'}
 
   '@vercel/react-router@1.2.4':
     resolution: {integrity: sha512-ep4yczB3O24yMQ+08IBB/zamNTAW0BzgEv1urnhLnsvN6wrjACk/2M28obmyE0EEgW5YLNaYVbGKcYI3QSMcQw==}
@@ -834,10 +831,6 @@ packages:
 
   buffer-from@1.1.2:
     resolution: {integrity: sha512-E+XQCRwSbaaiChtv6k6Dwgc+bx+Bs6vuKJHHl5kox/BaKbhiXzqQOwK4cO22yElGp2OCmjwVhT3HmxgyPGnJfQ==}
-
-  bufferutil@4.1.0:
-    resolution: {integrity: sha512-ZMANVnAixE6AWWnPzlW2KpUrxhm9woycYvPOo67jWHyFowASTEd9s+QN1EIMsSDtwhIxN4sWE1jotpuDUIgyIw==}
-    engines: {node: '>=6.14.2'}
 
   bytes@3.1.2:
     resolution: {integrity: sha512-/Nf7TyzTx6S3yRJObOAV7956r8cr2+Oj8AC5dt8wSP3BQAoeX58NoHyCU8P8zGkNXStjTSi6fzO6F0pBdcYbEg==}
@@ -1188,9 +1181,16 @@ packages:
     engines: {node: '>=6'}
     hasBin: true
 
-  kysely@0.27.6:
-    resolution: {integrity: sha512-FIyV/64EkKhJmjgC0g2hygpBv5RNWVPyNCqSAD7eTCv6eFWNIi4PN1UvdSJGicN/o35bnevgis4Y0UDC0qi8jQ==}
-    engines: {node: '>=14.0.0'}
+  kysely-neon@2.0.2:
+    resolution: {integrity: sha512-LY7tm9wZKsc8ilFe4Yc5Nf/z3R58wFkxbt8xq6f7U27+5VzZr9vy/S8bVPG8RT3yd+0qhQBDRkCl8gJdRuXWzw==}
+    engines: {node: '>=20'}
+    peerDependencies:
+      '@neondatabase/serverless': ^1
+      kysely: ^0.28
+
+  kysely@0.28.9:
+    resolution: {integrity: sha512-3BeXMoiOhpOwu62CiVpO6lxfq4eS6KMYfQdMsN/2kUCRNuF2YiEr7u0HLHaQU+O4Xu8YXE3bHVkwaQ85i72EuA==}
+    engines: {node: '>=20.0.0'}
 
   lightningcss-android-arm64@1.30.2:
     resolution: {integrity: sha512-BH9sEdOCahSgmkVhBLeU7Hc9DWeZ1Eb6wNS6Da8igvUwAe0sqROHddIlvU06q3WyXVEOYDZ6ykBZQnjTbmo4+A==}
@@ -1344,10 +1344,6 @@ packages:
   negotiator@0.6.4:
     resolution: {integrity: sha512-myRT3DiWPHqho5PrJaIRyaMv2kgYf0mUVgBNOYMuCH5Ki1yEiQaf/ZJuQ62nvpc44wL5WDbTX7yGJi1Neevw8w==}
     engines: {node: '>= 0.6'}
-
-  node-gyp-build@4.8.4:
-    resolution: {integrity: sha512-LA4ZjwlnUblHVgq0oBF3Jl/6h/Nvs5fzBLwdEF4nuxnFdsfajde4WfxtJr3CaiH+F6ewcIB/q4jQ4UzPyid+CQ==}
-    hasBin: true
 
   node-releases@2.0.27:
     resolution: {integrity: sha512-nmh3lCkYZ3grZvqcCH+fjmQ7X+H0OeZgP40OierEaAptX4XofMh5kwNbWh7lBduUzCcV/8kZ+NDLCwm2iorIlA==}
@@ -1721,18 +1717,6 @@ packages:
       yaml:
         optional: true
 
-  ws@8.18.3:
-    resolution: {integrity: sha512-PEIGCY5tSlUt50cqyMXfCzX+oOPqN0vuGqWzbcJ2xvnkzkq46oOpz7dQaTDBdfICb4N14+GARUDw2XV2N4tvzg==}
-    engines: {node: '>=10.0.0'}
-    peerDependencies:
-      bufferutil: ^4.0.1
-      utf-8-validate: '>=5.0.2'
-    peerDependenciesMeta:
-      bufferutil:
-        optional: true
-      utf-8-validate:
-        optional: true
-
   yallist@3.1.1:
     resolution: {integrity: sha512-a4UGQaWPH59mOXUYnAG2ewncQS4i4F43Tv3JoAM+s2VDAmS9NsK8GpDMLrCHPksFT7h3K6TOoUNn2pb7RoXx4g==}
 
@@ -2056,8 +2040,9 @@ snapshots:
 
   '@mjackson/node-fetch-server@0.2.0': {}
 
-  '@neondatabase/serverless@0.9.5':
+  '@neondatabase/serverless@1.0.2':
     dependencies:
+      '@types/node': 22.19.3
       '@types/pg': 8.11.6
 
   '@nodelib/fs.scandir@2.1.5':
@@ -2352,6 +2337,10 @@ snapshots:
     dependencies:
       undici-types: 6.21.0
 
+  '@types/node@22.19.3':
+    dependencies:
+      undici-types: 6.21.0
+
   '@types/pg@8.11.6':
     dependencies:
       '@types/node': 20.19.27
@@ -2374,21 +2363,6 @@ snapshots:
   '@upstash/redis@1.36.0':
     dependencies:
       uncrypto: 0.1.3
-
-  '@vercel/postgres-kysely@0.10.0(kysely@0.27.6)':
-    dependencies:
-      '@vercel/postgres': 0.10.0
-      kysely: 0.27.6
-    transitivePeerDependencies:
-      - utf-8-validate
-
-  '@vercel/postgres@0.10.0':
-    dependencies:
-      '@neondatabase/serverless': 0.9.5
-      bufferutil: 4.1.0
-      ws: 8.18.3(bufferutil@4.1.0)
-    transitivePeerDependencies:
-      - utf-8-validate
 
   '@vercel/react-router@1.2.4(@react-router/dev@7.11.0(@react-router/serve@7.11.0(react-router@7.11.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(typescript@5.9.3))(@types/node@20.19.27)(jiti@2.6.1)(lightningcss@1.30.2)(react-router@7.11.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(typescript@5.9.3)(vite@6.4.1(@types/node@20.19.27)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.7.1))(yaml@2.7.1))(@react-router/node@7.11.0(react-router@7.11.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(typescript@5.9.3))(isbot@5.1.32)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
     dependencies:
@@ -2485,10 +2459,6 @@ snapshots:
       update-browserslist-db: 1.2.3(browserslist@4.28.1)
 
   buffer-from@1.1.2: {}
-
-  bufferutil@4.1.0:
-    dependencies:
-      node-gyp-build: 4.8.4
 
   bytes@3.1.2: {}
 
@@ -2835,7 +2805,12 @@ snapshots:
 
   json5@2.2.3: {}
 
-  kysely@0.27.6: {}
+  kysely-neon@2.0.2(@neondatabase/serverless@1.0.2)(kysely@0.28.9):
+    dependencies:
+      '@neondatabase/serverless': 1.0.2
+      kysely: 0.28.9
+
+  kysely@0.28.9: {}
 
   lightningcss-android-arm64@1.30.2:
     optional: true
@@ -2948,8 +2923,6 @@ snapshots:
   negotiator@0.6.3: {}
 
   negotiator@0.6.4: {}
-
-  node-gyp-build@4.8.4: {}
 
   node-releases@2.0.27: {}
 
@@ -3295,10 +3268,6 @@ snapshots:
       jiti: 2.6.1
       lightningcss: 1.30.2
       yaml: 2.7.1
-
-  ws@8.18.3(bufferutil@4.1.0):
-    optionalDependencies:
-      bufferutil: 4.1.0
 
   yallist@3.1.1: {}
 

@@ -1,5 +1,7 @@
-import { createKysely } from '@vercel/postgres-kysely'
+import { NeonDialect } from 'kysely-neon'
+import { neon } from '@neondatabase/serverless'
 import {
+  Kysely,
   Migrator,
   sql,
   type GeneratedAlways,
@@ -69,7 +71,11 @@ interface DbSchema {
   Votes: Votes
 }
 
-export const db = createKysely<DbSchema>()
+export const db = new Kysely<DbSchema>({
+  dialect: new NeonDialect({
+    neon: neon(process.env.DATABASE_URL!),
+  }),
+})
 
 const CHIX_KEY = 'chix-v13'
 const RANK_KEY = 'rank-v7'
