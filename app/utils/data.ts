@@ -52,6 +52,27 @@ const dbMigrationProvider: MigrationProvider = {
         //  await db.schema.dropIndex('timestamp-index').on(VOTES_TABLE).execute()
       },
     },
+    '003_ranking_indexes': {
+      async up(db) {
+        // Add index on adjective for GROUP BY and PARTITION BY operations
+        await db.schema
+          .createIndex('adjective-index')
+          .on(VOTES_TABLE)
+          .column('adjective')
+          .execute()
+
+        // Add composite index for ranking queries that group by adjective and left_wins
+        await db.schema
+          .createIndex('adjective-leftwins-index')
+          .on(VOTES_TABLE)
+          .columns(['adjective', 'left_wins'])
+          .execute()
+      },
+      async down(db) {
+        await db.schema.dropIndex('adjective-index').on(VOTES_TABLE).execute()
+        await db.schema.dropIndex('adjective-leftwins-index').on(VOTES_TABLE).execute()
+      },
+    },
   }),
 }
 
@@ -144,38 +165,33 @@ export const getVoteRanking = async function (): Promise<RankResult[]> {
   if (fromStore) return fromStore
 
   const ranks = await db
-    .with('url_counts', (qb) =>
-      qb
+    .selectFrom(
+      db
         .selectFrom(VOTES_TABLE)
         .select([
           'adjective',
           sql<string>`
-            CASE 
-              WHEN left_wins = true THEN "left" 
-              ELSE "right" 
+            CASE
+              WHEN left_wins = true THEN "left"
+              ELSE "right"
             END
-          `.as('url'),
+          `.as('winning_url'),
           sql<number>`COUNT(*)`.as('vote_count'),
+          sql<number>`
+            ROW_NUMBER() OVER (
+              PARTITION BY adjective
+              ORDER BY COUNT(*) DESC
+            )
+          `.as('rank'),
         ])
         .groupBy([
           'adjective',
           sql`CASE WHEN left_wins = true THEN "left" ELSE "right" END`,
         ])
-    )
-    .selectFrom(
-      db
-        .selectFrom('url_counts' as any)
-        .select([
-          sql<string>`adjective`.as('adjective'),
-          sql<string>`url`.as('winning_url'),
-          sql<number>`vote_count`.as('vote_count'),
-        ])
-        .distinctOn(['adjective'])
-        .orderBy('adjective')
-        .orderBy('vote_count', 'desc')
-        .as('winners')
+        .as('ranked_votes')
     )
     .select(['adjective', 'winning_url', 'vote_count'])
+    .where('rank', '=', 1)
     .orderBy('vote_count', 'desc')
     .execute()
 
@@ -194,15 +210,15 @@ export const getTopVotesByAdjective = async function (): Promise<RankResult[]> {
         .select([
           'adjective',
           sql<string>`
-            CASE 
-              WHEN left_wins = true THEN "left" 
-              ELSE "right" 
+            CASE
+              WHEN left_wins = true THEN "left"
+              ELSE "right"
             END
           `.as('winning_url'),
           sql<number>`COUNT(*)`.as('vote_count'),
           sql<number>`
             ROW_NUMBER() OVER (
-              PARTITION BY adjective 
+              PARTITION BY adjective
               ORDER BY COUNT(*) DESC
             )
           `.as('rank'),
@@ -218,7 +234,7 @@ export const getTopVotesByAdjective = async function (): Promise<RankResult[]> {
         ])
         .as('ranked_votes')
     )
-    .select(['adjective', 'winning_url', 'vote_count', 'rank', 'max_votes'])
+    .select(['adjective', 'winning_url', 'vote_count'])
     .where('rank', '<=', 10)
     .orderBy(sql`max_votes DESC, adjective, vote_count DESC`)
     .execute()
