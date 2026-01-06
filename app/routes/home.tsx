@@ -132,13 +132,12 @@ export default function Home({
   return (
     <div>
       <div className="header flex items-center justify-center px-6">
-        <BattleBoks
-          key={`${adjective}${left.name}${right.name}`}
-          adjective={adjective.toLocaleLowerCase()}
-          left={left}
-          right={right}
-          onSelected={vote}
-        />
+          <BattleBoks
+            adjective={adjective.toLocaleLowerCase()}
+            left={left}
+            right={right}
+            onSelected={vote}
+          />
       </div>
       <div className="flex items-center justify-center pb-3">
         <a className="text-sm" href="https://www.chicken.pics/about">
