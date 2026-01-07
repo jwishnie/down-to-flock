@@ -53,7 +53,7 @@ export function BattleBoks({
       img1.src = left.src
       img2.src = right.src
     }
-  }, [left, right, adjective, currentLeft, currentRight])
+  }, [left, right, adjective])
 
   useEffect(() => {
     if (typeof selected != 'undefined') {
@@ -61,7 +61,7 @@ export function BattleBoks({
         onSelected(selected)
       }, ANIMATION_DELAY)
     }
-  }, [selected])
+  }, [selected, onSelected])
 
   const lselected = selected === true
   const rselected = selected === false
