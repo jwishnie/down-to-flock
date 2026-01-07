@@ -22,15 +22,10 @@ export default function PeckingOrder({
   // Initialize words ONLY ONCE when component mounts (per session)
   // This ignores subsequent updates to rankingArray/rankingMap during navigation
   const [words] = useState(() => {
-    const wordList = [...rankingMap.values()].slice(0, 250).map((ranks) => ({
+    return [...rankingMap.values()].slice(0, 250).map((ranks) => ({
       text: ranks[0].adjective,
-      value: ranks[0].vote_count*8,
+      value: ranks[0].vote_count * 8,
     }))
-
-    // Sort by value descending so top words get placed first by d3-cloud
-    wordList.sort((a, b) => b.value - a.value)
-
-    return wordList
   })
 
   const onWordClick = (word: Word) => {
