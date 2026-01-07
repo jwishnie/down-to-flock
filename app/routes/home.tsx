@@ -119,7 +119,7 @@ export default function Home({
 
   useEffect(() => {
     document.title = title
-  })
+  }, [title])
 
   const submit = useSubmit()
   const path = useLocation().pathname
