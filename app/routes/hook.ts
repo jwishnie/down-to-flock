@@ -1,14 +1,14 @@
 import { useState, useEffect, useRef } from "react";
 
 export const useAudio = (srcUrl: string) => {
-    const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
+    const audio = useRef<HTMLAudioElement | null>(null);
     const [isPlaying, setIsPlaying] = useState(false);
     const playPromise = useRef<Promise<void> | null>(null);
     const resolveRef = useRef<(() => void) | null>(null);
-    
+
     useEffect(() => {
         const audioInstance = new Audio(srcUrl);
-        setAudio(audioInstance);
+        audio.current = audioInstance;
         
         // Create a new promise when audio is set up
         playPromise.current = new Promise((resolve) => {
@@ -40,10 +40,10 @@ export const useAudio = (srcUrl: string) => {
     }, [srcUrl]);
     
     const play = async (): Promise<void> => {
-        if (!audio) return Promise.reject('Audio not initialized');
-        
+        if (!audio.current) return Promise.reject('Audio not initialized');
+
         try {
-            await audio.play();
+            await audio.current.play();
             setIsPlaying(true);
             return playPromise.current || Promise.resolve();
         } catch (error) {

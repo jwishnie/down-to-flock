@@ -1,15 +1,14 @@
 import { getTopVotesByAdjective, type RankResult } from '~/utils/data'
 import type { Route } from './+types/peckingOrder'
 import { type Word, WordCloud } from '@isoterik/react-word-cloud'
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router'
 
 export default function PeckingOrder({
   loaderData: { rankingArray, adjective },
 }: Route.ComponentProps) {
-  const [selectedWord, setSelectedWord] = useState<string>('')
-  useEffect(() => setSelectedWord(adjective || ''), [adjective])
   const nav = useNavigate()
+  const selectedWord = adjective || ''
 
   // Memoize rankingMap to ensure stability for the effect
   const rankingMap = useMemo(() => {
