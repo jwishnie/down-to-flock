@@ -61,7 +61,8 @@ export function BattleBoks({
         onSelected(selected)
       }, ANIMATION_DELAY)
     }
-  }, [selected, onSelected])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selected])
 
   const lselected = selected === true
   const rselected = selected === false
