@@ -11,20 +11,27 @@ export default function PeckingOrder({
   useEffect(() => setSelectedWord(adjective || ''), [adjective])
   const nav = useNavigate()
 
-  const rankingMap: Map<string, RankResult[]> = Map.groupBy(
-    rankingArray,
-    (r: (typeof rankingArray)[0]) => r.adjective
-  )
-
-  // Memoize the words array with direct calculation
-  const words = useMemo(() => {
-    if (!rankingArray) return []
-
-    return [...rankingMap.values()].slice(1, 251).map((ranks) => ({
-      text: ranks[0].adjective,
-      value: ranks[0].vote_count * 10,
-    }))
+  // Memoize rankingMap to ensure stability for the effect
+  const rankingMap = useMemo(() => {
+    return Map.groupBy(
+      rankingArray,
+      (r: (typeof rankingArray)[0]) => r.adjective
+    )
   }, [rankingArray])
+
+  // Initialize words ONLY ONCE when component mounts (per session)
+  // This ignores subsequent updates to rankingArray/rankingMap during navigation
+  const [words] = useState(() => {
+    const wordList = [...rankingMap.values()].slice(0, 250).map((ranks) => ({
+      text: ranks[0].adjective,
+      value: ranks[0].vote_count*8,
+    }))
+
+    // Sort by value descending so top words get placed first by d3-cloud
+    wordList.sort((a, b) => b.value - a.value)
+
+    return wordList
+  })
 
   const onWordClick = (word: Word) => {
     nav(`/pecking/${word.text}`)
@@ -76,7 +83,7 @@ export default function PeckingOrder({
         </div>
       ) : (
         <div className="w-full">
-          {[...rankingMap.values()].slice(1, 11).map((ranks) => {
+          {[...rankingMap.values()].slice(0, 10).map((ranks) => {
             const { adjective, winning_url, vote_count } = ranks[0]
             return (
               <div key={adjective} className="flex items-center gap-3 mb-5">
@@ -85,7 +92,7 @@ export default function PeckingOrder({
                     className="max-w-32 cursor-pointer"
                     src={winning_url}
                     onClick={(e) => {
-                      setSelectedWord(adjective)
+                      nav(`/pecking/${adjective}`)
                     }}
                   />
                 </div>
