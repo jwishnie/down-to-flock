@@ -21,7 +21,7 @@ export default function CFF() {
 
         <a
           className="flex items-center justify-center gap-2"
-          href="https://fundraise.cff.org/PDXGS2025/axolotlunicorns"
+          href="https://give.cff.org/annualfund/clickensforacure"
           target="_blank"
           rel="noreferrer noopener"
         >
@@ -62,7 +62,7 @@ export default function CFF() {
           everyone, and a cure for all. So I'm interrupting your chickens to ask
           you to pitch in (
           <a
-            href="https://www.cff.org/donate"
+            href="https://give.cff.org/annualfund/clickensforacure"
             target="_blank"
             rel="noreferrer noopener"
           >
@@ -78,7 +78,3 @@ export default function CFF() {
   )
 }
 
-// export async function loader({ params: { adjective } }: Route.LoaderArgs) {
-//   const rankingArray = await getTopVotesByAdjective()
-//   return { rankingArray, adjective }
-// }
