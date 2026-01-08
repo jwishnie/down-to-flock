@@ -11,7 +11,7 @@ export default function CFF() {
           Enjoying the Chickens?
           <br />
           <a
-            href="https://www.cff.org/donate"
+            href="https://give.cff.org/annualfund/clickensforacure"
             target="_blank"
             rel="noreferrer noopener"
           >
