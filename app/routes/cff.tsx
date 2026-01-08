@@ -26,7 +26,6 @@ export default function CFF() {
           rel="noreferrer noopener"
         >
           <img alt="Cystic Fibrosis Foundation" src={cff} className="w-1/4" />
-          <!-- <img alt="Great Strides" src={strides} className="w-1/4" /> -->
         </a>
         <img alt="Tavie is a cute chicken" src={splash} className="w-lg" />
         <div className="text-justify">
