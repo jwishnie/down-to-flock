@@ -11,7 +11,7 @@ export default function CFF() {
           Enjoying the Chickens?
           <br />
           <a
-            href="https://www.cff.org/donate"
+            href="https://give.cff.org/annualfund/clickensforacure"
             target="_blank"
             rel="noreferrer noopener"
           >
@@ -21,14 +21,13 @@ export default function CFF() {
 
         <a
           className="flex items-center justify-center gap-2"
-          href="https://fundraise.cff.org/PDXGS2025/axolotlunicorns"
+          href="https://give.cff.org/annualfund/clickensforacure"
           target="_blank"
           rel="noreferrer noopener"
         >
           <img alt="Cystic Fibrosis Foundation" src={cff} className="w-1/4" />
-          <img alt="Great Strides" src={strides} className="w-1/4" />
         </a>
-        <img alt="Tavie is a chicken" src={splash} className="w-lg" />
+        <img alt="Tavie is a cute chicken" src={splash} className="w-lg" />
         <div className="text-justify">
           <span>
             Hi, I'm Jeff. I built this corner of Chickentown. That's my kid
@@ -62,7 +61,7 @@ export default function CFF() {
           everyone, and a cure for all. So I'm interrupting your chickens to ask
           you to pitch in (
           <a
-            href="https://www.cff.org/donate"
+            href="https://give.cff.org/annualfund/clickensforacure"
             target="_blank"
             rel="noreferrer noopener"
           >
@@ -78,7 +77,3 @@ export default function CFF() {
   )
 }
 
-// export async function loader({ params: { adjective } }: Route.LoaderArgs) {
-//   const rankingArray = await getTopVotesByAdjective()
-//   return { rankingArray, adjective }
-// }
