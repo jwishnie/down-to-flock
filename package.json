@@ -14,7 +14,7 @@
     "@octokit/core": "^7.0.6",
     "@react-router/node": "^7.13.0",
     "@react-router/serve": "^7.13.0",
-    "@tailwindcss/vite": "^4.1.18",
+    "@tailwindcss/vite": "^4.2.0",
     "@upstash/redis": "^1.36.2",
     "@vercel/react-router": "^1.2.5",
     "install": "^0.13.0",
@@ -25,7 +25,7 @@
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "react-router": "^7.13.0",
-    "tailwindcss": "^4.1.18"
+    "tailwindcss": "^4.2.0"
   },
   "devDependencies": {
     "@react-router/dev": "^7.13.0",
@@ -38,7 +38,7 @@
     "postcss": "^8.5.6",
     "typescript": "^5.9.3",
     "vite": "^7.3.1",
-    "vite-tsconfig-paths": "6.0.4"
+    "vite-tsconfig-paths": "6.1.1"
   },
   "packageManager": "pnpm@10.30.0+sha512.2b5753de015d480eeb88f5b5b61e0051f05b4301808a82ec8b840c9d2adf7748eb352c83f5c1593ca703ff1017295bc3fdd3119abb9686efc96b9fcb18200937",
   "pnpm": {
