@@ -206,7 +206,7 @@ const adjectives = [
   'Negligent',
   'Neutral',
   'Neurotic',
-  'Nimble'
+  'Nimble',
   'Nitheful',
   'Nosy',
   'Observant',
