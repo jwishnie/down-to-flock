@@ -3,6 +3,8 @@ import splash from '~/assets/tavie-chick.jpg'
 import cff from '~/assets/cff.png'
 import strides from '~/assets/great-strides.png'
 
+const giveLink = 'fundraise.cff.org/ColumbiaWillamette2026/axolotlunicorns'
+
 export default function CFF() {
   return (
     <main className="container mx-auto py-8">
@@ -11,7 +13,7 @@ export default function CFF() {
           Enjoying the Chickens?
           <br />
           <a
-            href="https://give.cff.org/annualfund/clickensforacure"
+            href={`https://${giveLink}`}
             target="_blank"
             rel="noreferrer noopener"
           >
@@ -20,12 +22,13 @@ export default function CFF() {
         </div>
 
         <a
-          className="flex items-center justify-center gap-2"
-          href="https://give.cff.org/annualfund/clickensforacure"
+          className="flex items-center justify-center align-middle gap-8"
+          href={`https://${giveLink}`}
           target="_blank"
           rel="noreferrer noopener"
         >
           <img alt="Cystic Fibrosis Foundation" src={cff} className="w-1/4" />
+          <img alt="Great Strides walk for a cure to cystic fibrosis" src={strides} className="w-1/4" />
         </a>
         <img alt="Tavie is a cute chicken" src={splash} className="w-lg" />
         <div className="text-justify">
@@ -61,7 +64,7 @@ export default function CFF() {
           everyone, and a cure for all. So I'm interrupting your chickens to ask
           you to pitch in (
           <a
-            href="https://give.cff.org/annualfund/clickensforacure"
+            href={`https://${giveLink}`}
             target="_blank"
             rel="noreferrer noopener"
           >
