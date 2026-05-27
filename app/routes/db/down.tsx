@@ -1,4 +1,4 @@
-import { NO_MIGRATIONS } from 'kysely'
+import { NO_MIGRATIONS } from 'kysely/migration'
 import { db, getMigrator } from '~/utils/data'
 
 const migrator = getMigrator({ db })

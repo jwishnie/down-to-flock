@@ -2,13 +2,16 @@ import { NeonDialect } from 'kysely-neon'
 import { neon } from '@neondatabase/serverless'
 import {
   Kysely,
-  Migrator,
   sql,
   type GeneratedAlways,
-  type Migration,
+ 
+} from 'kysely'
+
+import { type Migration,
   type MigrationProvider,
   type MigratorProps,
-} from 'kysely'
+  Migrator
+} from 'kysely/migration'
 
 import { Octokit } from '@octokit/core'
 import { Redis } from '@upstash/redis'
