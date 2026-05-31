@@ -3,7 +3,8 @@ import splash from '~/assets/tavie-chick.jpg'
 import cff from '~/assets/cff.png'
 import strides from '~/assets/great-strides.png'
 
-const giveLink = 'fundraise.cff.org/ColumbiaWillamette2026/axolotlunicorns'
+// const giveLink = 'fundraise.cff.org/ColumbiaWillamette2026/axolotlunicorns'
+const giveLink = 'give.cff.org/annualfund/clickensforacure?tab=MyPage'
 
 export default function CFF() {
   return (
