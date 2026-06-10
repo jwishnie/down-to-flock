@@ -126,12 +126,13 @@ export const getChix = async function () {
   return fromStore
 }
 
-export const getVotes = async function (rowsPerPage = 25, maxPages = 30) {
+export const getVotes = async function (page = 1, rowsPerPage = 25) {
   return await db
     .selectFrom(VOTES_TABLE)
     .selectAll()
-    .limit(rowsPerPage * maxPages)
+    .limit(rowsPerPage)
     .orderBy('timestamp', 'desc')
+    .offset((page - 1) * rowsPerPage)
     .execute()
 }
 

@@ -9,19 +9,19 @@ import React from 'react'
 const ROWS_PER_PAGE = 25
 const MAX_PAGES = 30
 export async function loader({ params: { page } }: Route.LoaderArgs) {
-  const votes = await getVotes(ROWS_PER_PAGE, MAX_PAGES)
+  const totalVotes = await getVoteCount()
 
-  if (!votes?.length) {
+  if (!totalVotes) {
     return { votes: [], numPages: 0, currentPage: 0 }
   }
 
-  const numPages = Math.ceil(votes.length / ROWS_PER_PAGE)
+  const numPages = Math.min(Math.ceil(totalVotes / ROWS_PER_PAGE), MAX_PAGES)
   const current = safeParseInt(page)
   if (!current || current > numPages) {
     return redirect('/results/1')
   }
 
-  const totalVotes = await getVoteCount()
+  const votes = await getVotes(current, ROWS_PER_PAGE)
   return { totalVotes, votes, numPages, currentPage: current }
 }
 
@@ -40,7 +40,6 @@ export default function Tally({
 
   const chickGrid = votes.length
     ? votes
-        .slice(ROWS_PER_PAGE * (page - 1), ROWS_PER_PAGE * page)
         .map(({ adjective, left, right, left_wins, id }) => (
           <React.Fragment key={id}>
             <div className="flex justify-end">
