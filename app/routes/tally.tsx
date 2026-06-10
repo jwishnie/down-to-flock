@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { redirect, useNavigate } from 'react-router'
 import { getVoteCount, getVotes } from '~/utils/data'
 import { safeParseInt } from '~/utils/general'
@@ -30,6 +30,8 @@ export default function Tally({
 }: Route.ComponentProps) {
   const nav = useNavigate()
   const [page, setPage] = useState(currentPage)
+
+  useEffect(() => { setPage(currentPage) }, [currentPage])
 
   const handlePageSelected = (selectedPage: number) => {
     setPage(selectedPage)

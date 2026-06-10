@@ -102,7 +102,6 @@ export const db = new Kysely<DbSchema>({
 })
 
 const CHIX_KEY = 'chix-v13'
-const RANK_KEY = 'rank-v7'
 const TOP_VOTES_KEY = 'top-votes-v14'
 const CHIX_PATH = '/repos/jwishnie/down-to-flock/contents/chix'
 const PAGES_PATH = 'https://chix.wishnie.org'
@@ -158,49 +157,7 @@ export interface RankResult {
   vote_count: number
 }
 
-interface VoteRank extends RankResult {
-  rank: number
-  max_votes: number
-}
 
-export const getVoteRanking = async function (): Promise<RankResult[]> {
-  const fromStore = (await kv.get(RANK_KEY)) as RankResult[] | null
-  if (fromStore) return fromStore
-
-  const ranks = await db
-    .selectFrom(
-      db
-        .selectFrom(VOTES_TABLE)
-        .select([
-          'adjective',
-          sql<string>`
-            CASE
-              WHEN left_wins = true THEN "left"
-              ELSE "right"
-            END
-          `.as('winning_url'),
-          sql<number>`COUNT(*)`.as('vote_count'),
-          sql<number>`
-            ROW_NUMBER() OVER (
-              PARTITION BY adjective
-              ORDER BY COUNT(*) DESC
-            )
-          `.as('rank'),
-        ])
-        .groupBy([
-          'adjective',
-          sql`CASE WHEN left_wins = true THEN "left" ELSE "right" END`,
-        ])
-        .as('ranked_votes')
-    )
-    .select(['adjective', 'winning_url', 'vote_count'])
-    .where('rank', '=', 1)
-    .orderBy('vote_count', 'desc')
-    .execute()
-
-  await kv.set(RANK_KEY, ranks, { ex: RANK_TTL })
-  return ranks
-}
 
 export const getTopVotesByAdjective = async function (): Promise<RankResult[]> {
   const fromStore = (await kv.get(TOP_VOTES_KEY)) as RankResult[] | null

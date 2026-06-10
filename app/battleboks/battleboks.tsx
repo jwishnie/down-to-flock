@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { ChickMeta } from '~/utils/data'
 
 const bokClass =
@@ -55,13 +55,13 @@ export function BattleBoks({
     }
   }, [left, right, adjective])
 
+  const onSelectedRef = useRef(onSelected)
+  useEffect(() => { onSelectedRef.current = onSelected }, [onSelected])
+
   useEffect(() => {
-    if (typeof selected != 'undefined') {
-      setTimeout(() => {
-        onSelected(selected)
-      }, ANIMATION_DELAY)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (typeof selected === 'undefined') return
+    const id = setTimeout(() => { onSelectedRef.current(selected) }, ANIMATION_DELAY)
+    return () => clearTimeout(id)
   }, [selected])
 
   const lselected = selected === true

@@ -16,7 +16,7 @@ export function Pagination({
   }
 
   const pager = _range(1, numPages + 1).map((n, idx) => (
-    <span key={idx}>
+    <span key={n}>
       {!!idx ? ' | ' : ''}
       {n === currentPage ? (
         n
