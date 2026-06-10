@@ -67,12 +67,17 @@ export async function action({
 }: Route.ActionArgs) {
   const vote = (await request.formData()).get('vote')
   const chix = await getChix()
+  const numChix = chix.length
+
+  if (!adjective || !adjectives.some((a) => a.toLocaleLowerCase() === adjective)) {
+    throw Response.json({ message: 'Invalid adjective' }, { status: 400, statusText: 'Bad Request' })
+  }
 
   const [leftChick, rightChick] = [left, right].map((i) => {
     const index = safeParseInt(i)
-    if (!index) {
+    if (!index || index > numChix) {
       throw Response.json(
-        { message: 'Invlalid Chicken Index' },
+        { message: 'Invalid Chicken Index' },
         {
           status: 400,
           statusText: 'Bad Request',
