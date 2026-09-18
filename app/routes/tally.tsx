@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { redirect, useNavigate } from 'react-router'
 import { getVoteCount, getVotes } from '~/utils/data'
 import { safeParseInt } from '~/utils/general'
@@ -9,19 +8,32 @@ import React from 'react'
 const ROWS_PER_PAGE = 25
 const MAX_PAGES = 30
 export async function loader({ params: { page } }: Route.LoaderArgs) {
-  const votes = await getVotes(ROWS_PER_PAGE, MAX_PAGES)
-
-  if (!votes?.length) {
-    return { votes: [], numPages: 0, currentPage: 0 }
-  }
-
-  const numPages = Math.ceil(votes.length / ROWS_PER_PAGE)
   const current = safeParseInt(page)
-  if (!current || current > numPages) {
+  if (!current || current < 1) {
     return redirect('/results/1')
   }
 
   const totalVotes = await getVoteCount()
+  const numPages = Math.min(
+    Math.ceil(totalVotes / ROWS_PER_PAGE),
+    MAX_PAGES
+  )
+
+  if (numPages === 0) {
+    return { totalVotes, votes: [], numPages: 0, currentPage: 0 }
+  }
+  if (current > numPages) {
+    return redirect('/results/1')
+  }
+
+  const votes = await getVotes(current, ROWS_PER_PAGE)
+
+  // totalVotes is cached for COUNT_TTL, so numPages can point past the live rows.
+  // Rather than render a blank page, fall back to the first one.
+  if (!votes.length && current > 1) {
+    return redirect('/results/1')
+  }
+
   return { totalVotes, votes, numPages, currentPage: current }
 }
 
@@ -29,16 +41,16 @@ export default function Tally({
   loaderData: { totalVotes, votes, numPages, currentPage },
 }: Route.ComponentProps) {
   const nav = useNavigate()
-  const [page, setPage] = useState(currentPage)
 
+  // currentPage comes straight from loaderData rather than local state, so the
+  // pager stays correct through back/forward navigation too.
   const handlePageSelected = (selectedPage: number) => {
-    setPage(selectedPage)
     nav(`/results/${selectedPage}`)
   }
 
+  // votes is already exactly one page — the DB did the slicing.
   const chickGrid = votes.length
     ? votes
-        .slice(ROWS_PER_PAGE * (page - 1), ROWS_PER_PAGE * page)
         .map(({ adjective, left, right, left_wins, id }) => (
           <React.Fragment key={id}>
             <div className="flex justify-end">
@@ -67,10 +79,10 @@ export default function Tally({
         Results
       </div>
       <div className="subheader flex items-center justify-center pb-6">
-        ~{(Math.floor(totalVotes! / 10) * 10).toLocaleString()} appraisals
+        ~{(Math.floor(totalVotes / 10) * 10).toLocaleString()} appraisals
       </div>
       <Pagination
-        currentPage={page}
+        currentPage={currentPage}
         numPages={numPages}
         onSelected={handlePageSelected}
       />
@@ -78,7 +90,7 @@ export default function Tally({
         {chickGrid}
       </div>
       <Pagination
-        currentPage={page}
+        currentPage={currentPage}
         numPages={numPages}
         onSelected={handlePageSelected}
       />

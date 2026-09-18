@@ -20,38 +20,60 @@ const pickYourBattle = async function (numChix: number) {
   return { adjective, leftIndex, rightIndex }
 }
 
+const VALID_ADJECTIVES = new Set(
+  adjectives.map((a) => a.toLocaleLowerCase())
+)
+
+// Shared by loader and action. The action is a separate request that can be POSTed
+// to directly, so it can't assume the loader ran first and validated anything.
+// Returns null for anything we shouldn't record. Indices are 1s based.
+const validateBattle = function (
+  adjective: string | undefined,
+  left: string | undefined,
+  right: string | undefined,
+  numChix: number
+) {
+  const [leftIndex, rightIndex] = [left, right].map((e) => safeParseInt(e))
+
+  if (!adjective || !VALID_ADJECTIVES.has(adjective.toLocaleLowerCase())) {
+    return null
+  }
+  if (!leftIndex || !rightIndex) return null
+  if (leftIndex < 1 || rightIndex < 1) return null
+  // without this the row records a chicken as more <adjective> than itself
+  if (leftIndex === rightIndex) return null
+  // without this chix[index - 1] is undefined and .src throws a 500
+  if (leftIndex > numChix || rightIndex > numChix) return null
+
+  return {
+    adjective: adjective.toLocaleLowerCase(),
+    leftIndex,
+    rightIndex,
+  }
+}
+
 // params are 1s based
 export async function loader({
   params: { adjective, left, right },
 }: Route.LoaderArgs) {
-  const [left1sIndex, right1sIndex] = [left, right].map((e) => safeParseInt(e))
   const chix = await getChix()
   const numChix = chix.length
 
-  if (
-    !(
-      adjective &&
-      left1sIndex &&
-      right1sIndex &&
-      left1sIndex > 0 &&
-      right1sIndex > 0 &&
-      left1sIndex <= numChix &&
-      right1sIndex <= numChix
-    )
-  ) {
+  const battle = validateBattle(adjective, left, right, numChix)
+  if (!battle) {
     // invalid params, pick a new battle and redirect
     const { adjective, leftIndex, rightIndex } = await pickYourBattle(numChix)
     return redirect(`/${adjective}/${leftIndex}/${rightIndex}`)
   }
 
   // pick the chix, convert 1s based from param to 0s based
-  const [leftChick, rightChick] = [left1sIndex, right1sIndex].map(
+  const [leftChick, rightChick] = [battle.leftIndex, battle.rightIndex].map(
     (i) => chix[i - 1]
   )
 
   return {
     title: _sampleSize(titles, 1)[0],
-    adjective: adjective,
+    adjective: battle.adjective,
     left: leftChick,
     right: rightChick,
     voteCount: await voteCount(),
@@ -68,24 +90,25 @@ export async function action({
   const vote = (await request.formData()).get('vote')
   const chix = await getChix()
 
-  const [leftChick, rightChick] = [left, right].map((i) => {
-    const index = safeParseInt(i)
-    if (!index) {
-      throw Response.json(
-        { message: 'Invlalid Chicken Index' },
-        {
-          status: 400,
-          statusText: 'Bad Request',
-        }
-      )
-    }
-    return chix[index - 1]
-  })
+  const battle = validateBattle(adjective, left, right, chix.length)
+  if (!battle) {
+    throw Response.json(
+      { message: 'Invalid battle' },
+      {
+        status: 400,
+        statusText: 'Bad Request',
+      }
+    )
+  }
+
+  const [leftChick, rightChick] = [battle.leftIndex, battle.rightIndex].map(
+    (i) => chix[i - 1]
+  )
 
   await db
     .insertInto(VOTES_TABLE)
     .values({
-      adjective: adjective!, // for typescript, if empty route wouldn't have reached here
+      adjective: battle.adjective,
       left: leftChick.src,
       right: rightChick.src,
       left_wins: vote === 'l',
@@ -95,8 +118,11 @@ export async function action({
   // check if interstitial time
   const voteCount = await iVoted()
 
+  // voteCount is 0 when the counter is unavailable; 0 % n === 0 would otherwise
+  // pitch the interstitial on every single vote while Redis is down.
   if (
     process.env.CF_INTERSTITIAL === 'yes' &&
+    voteCount > 0 &&
     voteCount % PITCH_CF_EVERY === 0
   ) {
     console.log('Redirecting to CFF page')
