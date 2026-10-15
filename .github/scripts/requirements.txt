@@ -1,0 +1,2 @@
+# [binary] bundles libvips, so the runner needs no apt packages
+pyvips[binary]==3.2.0

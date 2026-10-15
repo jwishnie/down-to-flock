@@ -1,5 +1,5 @@
-# Simple workflow for deploying static content to GitHub Pages
-name: Deploy static content to Pages
+# Scales new chix to webp in scaled_chix/, commits them, then deploys to GitHub Pages
+name: Scale and deploy chix to Pages
 
 on:
   # Runs on pushes targeting the default branch
@@ -9,9 +9,10 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+# contents: write so the job can commit the scaled images back to main.
+# pages + id-token for the GitHub Pages deployment.
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -21,9 +22,15 @@ concurrency:
   group: "pages"
   cancel-in-progress: false
 
+env:
+  # Longest edge in px; smaller images are left at their size, never upscaled
+  MAX_SIZE: 1200
+  WEBP_QUALITY: 80
+
 jobs:
-  # Single deploy job since we're just deploying
-  deploy:
+  # One job rather than scale + deploy workflows: pushes made with GITHUB_TOKEN don't
+  # trigger other workflows, so a separate deploy would never see the scaled images.
+  scale-and-deploy:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -31,13 +38,50 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      # setup-python rather than the runner's system Python, which refuses pip
+      # installs (PEP 668 externally-managed environment)
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: .github/scripts/requirements.txt
+      - name: Install pyvips
+        run: pip install -r .github/scripts/requirements.txt
+
+      - name: Scale new chix to webp
+        run: python .github/scripts/scale_chix.py
+
+      - name: Commit scaled chix
+        run: |
+          git add scaled_chix
+          # Only decides whether there's anything to commit; what to scale was decided above
+          if git diff --cached --quiet; then
+            echo "no new scaled chix to commit"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Scale new chix to webp"
+          # main may have moved while we were scaling
+          git pull --rebase origin main
+          git push origin HEAD:main
+
+      - name: Assemble site
+        # Originals stay published so the .jpg URLs stored in past votes keep working.
+        # Names can't collide: scaled copies are all .webp.
+        run: |
+          mkdir -p _site
+          cp chix/* _site/
+          cp scaled_chix/* _site/
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # Upload entire repository
-          path: './chix'
+          path: './_site'
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
