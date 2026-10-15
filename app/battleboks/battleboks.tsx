@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type TransitionEvent } from 'react'
 import type { ChickMeta } from '~/utils/data'
 
 // The <button> around each image carries cursor-pointer too: Tailwind v4 gives
@@ -6,7 +6,15 @@ import type { ChickMeta } from '~/utils/data'
 const bokClass =
   'p-1 sm:p-0 w-svw sm:w-full cursor-pointer transition delay-75 duration-300 ease-in-out hover:scale-105'
 
-const ANIMATION_DELAY = 425
+// The vote goes out when the loser's fade-out ends (~300ms); this is the backstop
+// in case that transition event never arrives
+const FADE_FALLBACK_MS = 1000
+
+// Selection animations. Transitions live in these classes, so when a new battle
+// swaps in and they're removed, everything snaps back instead of animating.
+const fadeOut = 'transition-opacity opacity-0 ease-in duration-300'
+const rslideIn = 'transition-transform max-sm:-translate-y-full sm:-translate-x-1/2'
+const lslideIn = 'sm:transition-transform sm:translate-x-1/2'
 
 // Resolves once the image is loaded and decoded, or failed: a broken image
 // shouldn't block the next battle.
@@ -37,8 +45,7 @@ export function BattleBoks({
     shown.right.src !== right.src
 
   useEffect(() => {
-    // Covers mount, the swap below, and props returning to the shown battle
-    // (quick back/forward): in each case the shown battle is fresh and unvoted.
+    // Mount, or props back on the shown battle (quick back/forward)
     if (!isLoading) {
       setSelected(undefined)
       return
@@ -48,7 +55,11 @@ export function BattleBoks({
     // swap in the wrong battle.
     let cancelled = false
     Promise.all([left.src, right.src].map(preload)).then(() => {
-      if (!cancelled) setShown({ adjective, left, right })
+      if (cancelled) return
+      // One update: clearing the selection in a later effect would paint a frame
+      // of the new chix with the old slide/fade classes
+      setShown({ adjective, left, right })
+      setSelected(undefined)
     })
     return () => {
       cancelled = true
@@ -56,47 +67,51 @@ export function BattleBoks({
     // srcs rather than the objects, so only a real change of chix re-runs this
   }, [isLoading, adjective, left.src, right.src])
 
-  const onSelectedRef = useRef(onSelected)
-  useEffect(() => { onSelectedRef.current = onSelected }, [onSelected])
-
-  useEffect(() => {
-    if (typeof selected === 'undefined') return
-    const id = setTimeout(() => { onSelectedRef.current(selected) }, ANIMATION_DELAY)
-    return () => clearTimeout(id)
-  }, [selected])
+  // Resolves the pending vote's fade; set per click, called by onFadeOutDone
+  const fadeDone = useRef<() => void>(undefined)
 
   // Ignore clicks while a vote is pending or the next battle is loading
   const select = (v: boolean) => {
-    if (selected === undefined && !isLoading) setSelected(v)
+    if (selected !== undefined || isLoading) return
+    setSelected(v)
+    const { promise, resolve } = Promise.withResolvers<void>()
+    fadeDone.current = resolve
+    // Whichever comes first; race settles once, so the vote can't fire twice
+    Promise.race([
+      promise,
+      new Promise((r) => setTimeout(r, FADE_FALLBACK_MS)),
+    ]).then(() => onSelected(v))
   }
+
+  // The loser's fade runs at every breakpoint, unlike the winner's slide (no left
+  // slide on narrow screens), so its end is what releases the vote. Ignores
+  // transitions bubbling up from the img (hover:scale) and other properties.
+  const onFadeOutDone =
+    (fadesWhen: boolean) => (e: TransitionEvent<HTMLDivElement>) => {
+      if (e.target !== e.currentTarget || e.propertyName !== 'opacity') return
+      if (selected === fadesWhen) fadeDone.current?.()
+    }
 
   const lselected = selected === true
   const rselected = selected === false
-  
-  // Outgoing animations
-  const fadeOut = 'transition-opacity opacity-0 ease-in duration-300'
-  const ending = isLoading ? 'transition-opacity opacity-0 ease-in duration-500' : ''
-
-  const rslideIn = 'transition-transform max-sm:-translate-y-full sm:-translate-x-1/2'
-  const lslideIn = 'sm:transition-transform sm:translate-x-1/2'
 
   return (
     <div>
-      
-      {/* Header updates with the content */}
-      <div 
-        key={`header-${shown.adjective}`} 
-        className={`header flex items-center justify-center pt-8 animate-fade-in ${ending}`}
+      {/* Key change remounts the header, so it fades in with each battle */}
+      <div
+        key={`header-${shown.adjective}-${shown.left.src}-${shown.right.src}`}
+        className="header flex items-center justify-center pt-8 animate-fade-in"
       >
         <div className="text-center">Which is more {shown.adjective}?</div>
       </div>
 
       <main className="flex flex-wrap justify-center gap-x-4 pt-8 pb-4">
-        {/* Left Container */}
         <div
           className={`flex-none sm:flex-1 ${
-             lselected ? lslideIn : rselected ? fadeOut : ''
-          } ${ending}`}
+            lselected ? lslideIn : rselected ? fadeOut : ''
+          }`}
+          onTransitionEnd={onFadeOutDone(false)}
+          onTransitionCancel={onFadeOutDone(false)}
         >
           {/* Key change on wrapper forces remount -> triggers animation */}
           <div key={shown.left.src} className="animate-fade-in">
@@ -114,14 +129,15 @@ export function BattleBoks({
           </div>
         </div>
 
-        {/* Right Container */}
         <div
           className={`flex-none sm:flex-1 ${
             rselected ? rslideIn : lselected ? fadeOut : ''
-          } ${ending}`}
+          }`}
+          onTransitionEnd={onFadeOutDone(true)}
+          onTransitionCancel={onFadeOutDone(true)}
         >
           <div key={shown.right.src} className="animate-fade-in">
-             <button
+            <button
               type="button"
               className="block w-full cursor-pointer"
               onClick={() => select(false)}
