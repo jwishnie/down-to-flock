@@ -2,7 +2,11 @@ import { getTopVotesByAdjective } from '~/utils/data'
 import type { Route } from './+types/peckingOrder'
 import { type Word, WordCloud } from '@isoterik/react-word-cloud'
 import { useMemo } from 'react'
-import { type ShouldRevalidateFunctionArgs, useNavigate } from 'react-router'
+import {
+  Link,
+  type ShouldRevalidateFunctionArgs,
+  useNavigate,
+} from 'react-router'
 
 export default function PeckingOrder({
   loaderData: { rankingArray },
@@ -53,12 +57,9 @@ export default function PeckingOrder({
 
       <div className="text-center mb-8">
         {selectedWord && (
-          <span
-            onClick={() => onWordClick({ text: '', value: 0 })}
-            className="cursor-pointer underline"
-          >
+          <Link to="/pecking" className="cursor-pointer underline">
             back to the mostests
-          </span>
+          </Link>
         )}
       </div>
 
@@ -85,11 +86,13 @@ export default function PeckingOrder({
             return (
               <div key={adjective} className="flex items-center gap-3 mb-5">
                 <div className="flex-1 flex items-center justify-end">
-                  <img
-                    className="max-w-32 cursor-pointer"
-                    src={winning_url}
-                    onClick={() => nav(`/pecking/${adjective}`)}
-                  />
+                  <Link to={`/pecking/${adjective}`} className="cursor-pointer">
+                    <img
+                      className="max-w-32"
+                      src={winning_url}
+                      alt={`The most ${adjective} chicken`}
+                    />
+                  </Link>
                 </div>
                 <div className="flex-1 flex items-center justify-start">
                   <span>

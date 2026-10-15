@@ -1,4 +1,4 @@
-import { redirect, useNavigate } from 'react-router'
+import { redirect } from 'react-router'
 import { getVoteCount, getVotes } from '~/utils/data'
 import { safeParseInt } from '~/utils/general'
 import type { Route } from './+types/tally'
@@ -42,14 +42,6 @@ export async function loader({ params: { page } }: Route.LoaderArgs) {
 export default function Tally({
   loaderData: { totalVotes, votes, numPages, currentPage },
 }: Route.ComponentProps) {
-  const nav = useNavigate()
-
-  // currentPage comes straight from loaderData rather than local state, so the
-  // pager stays correct through back/forward navigation too.
-  const handlePageSelected = (selectedPage: number) => {
-    nav(`/results/${selectedPage}`)
-  }
-
   // votes is already exactly one page — the DB did the slicing.
   const chickGrid = votes.length
     ? votes
@@ -86,7 +78,7 @@ export default function Tally({
       <Pagination
         currentPage={currentPage}
         numPages={numPages}
-        onSelected={handlePageSelected}
+        hrefFor={(n) => `/results/${n}`}
       />
       <div className="grid grid-cols-[minmax(min-content,1fr)_minmax(min-content,1fr)_minmax(min-content,1fr)] mx-auto gap-4 pb-3">
         {chickGrid}
@@ -94,7 +86,7 @@ export default function Tally({
       <Pagination
         currentPage={currentPage}
         numPages={numPages}
-        onSelected={handlePageSelected}
+        hrefFor={(n) => `/results/${n}`}
       />
     </div>
   )

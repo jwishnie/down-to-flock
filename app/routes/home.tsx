@@ -5,7 +5,6 @@ import _range from 'lodash-es/range'
 import _sampleSize from 'lodash-es/sampleSize'
 import { redirect, useLocation, useSubmit } from 'react-router'
 import adjectives from '~/adjectives'
-import titles from '~/titles'
 import {
   type ChickMeta,
   db,
@@ -104,18 +103,12 @@ export async function loader({
   )
 
   return {
-    title: _sampleSize(titles, 1)[0],
     adjective: battle.adjective,
     left: leftChick,
     right: rightChick,
     voteCount: count,
   }
 }
-
-// In the server-rendered <head>, so the title is there before hydration
-export const meta: Route.MetaFunction = ({ loaderData }) => [
-  { title: loaderData?.title },
-]
 
 const PITCH_CF_EVERY = 10
 const BOK_EVERY = 7

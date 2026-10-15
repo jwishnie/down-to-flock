@@ -8,8 +8,22 @@ import {
   ScrollRestoration,
 } from 'react-router'
 
+import _sample from 'lodash-es/sample'
 import type { Route } from './+types/root'
 import stylesheet from './app.css?url'
+import titles from './titles'
+
+// Picks the page title. Root loaders re-run after actions, so each vote gets a
+// fresh title, but not on plain navigations between pages.
+export async function loader() {
+  return { title: _sample(titles) }
+}
+
+// Child routes don't export meta, so this applies to every page. loaderData is
+// undefined when the root loader itself failed and the error boundary renders.
+export const meta: Route.MetaFunction = ({ loaderData }) => [
+  { title: loaderData?.title ?? 'Clickens!' },
+]
 
 export const links: Route.LinksFunction = () => [
   { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' },

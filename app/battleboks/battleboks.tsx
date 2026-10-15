@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import type { ChickMeta } from '~/utils/data'
 
+// The <button> around each image carries cursor-pointer too: Tailwind v4 gives
+// buttons the default arrow
 const bokClass =
   'p-1 sm:p-0 w-svw sm:w-full cursor-pointer transition delay-75 duration-300 ease-in-out hover:scale-105'
 
@@ -98,11 +100,17 @@ export function BattleBoks({
         >
           {/* Key change on wrapper forces remount -> triggers animation */}
           <div key={shown.left.src} className="animate-fade-in">
-            <img
-              src={shown.left.src}
-              className={`${bokClass}`}
+            <button
+              type="button"
+              className="block w-full cursor-pointer"
               onClick={() => select(true)}
-            />
+            >
+              <img
+                src={shown.left.src}
+                alt={`Vote for the left chicken as more ${shown.adjective}`}
+                className={bokClass}
+              />
+            </button>
           </div>
         </div>
 
@@ -113,11 +121,17 @@ export function BattleBoks({
           } ${ending}`}
         >
           <div key={shown.right.src} className="animate-fade-in">
-             <img
-              src={shown.right.src}
-              className={`${bokClass}`}
+             <button
+              type="button"
+              className="block w-full cursor-pointer"
               onClick={() => select(false)}
-            />
+            >
+              <img
+                src={shown.right.src}
+                alt={`Vote for the right chicken as more ${shown.adjective}`}
+                className={bokClass}
+              />
+            </button>
           </div>
         </div>
       </main>

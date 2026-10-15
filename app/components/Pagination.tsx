@@ -1,15 +1,16 @@
 import _range from 'lodash-es/range'
+import { Link } from 'react-router'
 
 interface PaginationProps {
   currentPage: number
   numPages: number
-  onSelected: (page: number) => void
+  hrefFor: (page: number) => string
 }
 
 export function Pagination({
   currentPage,
   numPages,
-  onSelected,
+  hrefFor,
 }: PaginationProps) {
   if (numPages <= 1) {
     return null
@@ -21,9 +22,9 @@ export function Pagination({
       {n === currentPage ? (
         n
       ) : (
-        <a className="cursor-pointer" onClick={() => onSelected(n)}>
+        <Link className="cursor-pointer" to={hrefFor(n)}>
           {n}
-        </a>
+        </Link>
       )}
     </span>
   ))
