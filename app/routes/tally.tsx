@@ -9,11 +9,15 @@ const ROWS_PER_PAGE = 25
 const MAX_PAGES = 30
 export async function loader({ params: { page } }: Route.LoaderArgs) {
   const current = safeParseInt(page)
-  if (!current || current < 1) {
+  if (!current || current < 1 || current > MAX_PAGES) {
     return redirect('/results/1')
   }
 
-  const totalVotes = await getVoteCount()
+  // Fetched together; the page's rows are wasted only on the rare redirects below
+  const [totalVotes, votes] = await Promise.all([
+    getVoteCount(),
+    getVotes(current, ROWS_PER_PAGE),
+  ])
   const numPages = Math.min(
     Math.ceil(totalVotes / ROWS_PER_PAGE),
     MAX_PAGES
@@ -25,8 +29,6 @@ export async function loader({ params: { page } }: Route.LoaderArgs) {
   if (current > numPages) {
     return redirect('/results/1')
   }
-
-  const votes = await getVotes(current, ROWS_PER_PAGE)
 
   // totalVotes is cached for COUNT_TTL, so numPages can point past the live rows.
   // Rather than render a blank page, fall back to the first one.

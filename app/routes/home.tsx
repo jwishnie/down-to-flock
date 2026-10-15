@@ -3,7 +3,6 @@ import type { Route } from './+types/home'
 
 import _range from 'lodash-es/range'
 import _sampleSize from 'lodash-es/sampleSize'
-import { useEffect } from 'react'
 import { redirect, useLocation, useSubmit } from 'react-router'
 import adjectives from '~/adjectives'
 import titles from '~/titles'
@@ -88,7 +87,9 @@ const pickYourBattle = function (
 export async function loader({
   params: { adjective, left, right },
 }: Route.LoaderArgs) {
-  const chix = await getChix()
+  // voteCount is independent of the chix; fetch both at once. On the redirect path
+  // it's an unused Redis read, which is cheaper than serializing the happy path.
+  const [chix, count] = await Promise.all([getChix(), voteCount()])
 
   const battle = validateBattle(adjective, left, right, chix)
   if (!battle) {
@@ -107,9 +108,14 @@ export async function loader({
     adjective: battle.adjective,
     left: leftChick,
     right: rightChick,
-    voteCount: await voteCount(),
+    voteCount: count,
   }
 }
+
+// In the server-rendered <head>, so the title is there before hydration
+export const meta: Route.MetaFunction = ({ loaderData }) => [
+  { title: loaderData?.title },
+]
 
 const PITCH_CF_EVERY = 10
 const BOK_EVERY = 7
@@ -118,8 +124,10 @@ export async function action({
   request,
   params: { adjective, left, right },
 }: Route.ActionArgs) {
-  const vote = (await request.formData()).get('vote')
-  const chix = await getChix()
+  const [vote, chix] = await Promise.all([
+    request.formData().then((fd) => fd.get('vote')),
+    getChix(),
+  ])
 
   const battle = validateBattle(adjective, left, right, chix)
   // without this anything but 'l' (including a missing vote) records a right win
@@ -137,18 +145,20 @@ export async function action({
     (i) => chix[i - 1]
   )
 
-  await db
-    .insertInto(VOTES_TABLE)
-    .values({
-      adjective: battle.adjective,
-      left: leftChick.src,
-      right: rightChick.src,
-      left_wins: vote === 'l',
-    })
-    .execute()
-
-  // check if interstitial time
-  const voteCount = await iVoted()
+  // The counter only paces the interstitial, so it's fine for it to tick even if
+  // the insert fails; running both at once saves a round trip per vote.
+  const [, voteCount] = await Promise.all([
+    db
+      .insertInto(VOTES_TABLE)
+      .values({
+        adjective: battle.adjective,
+        left: leftChick.src,
+        right: rightChick.src,
+        left_wins: vote === 'l',
+      })
+      .execute(),
+    iVoted(),
+  ])
 
   // voteCount is 0 when the counter is unavailable; 0 % n === 0 would otherwise
   // pitch the interstitial on every single vote while Redis is down.
@@ -170,13 +180,9 @@ export async function action({
 }
 
 export default function Home({
-  loaderData: { title, adjective, left, right, voteCount },
+  loaderData: { adjective, left, right, voteCount },
 }: Route.ComponentProps) {
   const { play: playBok } = useAudio(bokSound)
-
-  useEffect(() => {
-    document.title = title
-  }, [title])
 
   const submit = useSubmit()
   const path = useLocation().pathname

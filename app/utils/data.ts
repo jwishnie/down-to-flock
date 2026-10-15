@@ -230,8 +230,10 @@ export const getChix = async function (): Promise<ChickMeta[]> {
       chix[i] ??= { name: NOT_FOUND, src: '' }
     }
 
-    await cacheSet(CHIX_KEY, chix, CHIX_TTL)
-    await cacheSet(CHIX_FALLBACK_KEY, chix, CHIX_FALLBACK_TTL)
+    await Promise.all([
+      cacheSet(CHIX_KEY, chix, CHIX_TTL),
+      cacheSet(CHIX_FALLBACK_KEY, chix, CHIX_FALLBACK_TTL),
+    ])
     return chix
   } catch (err) {
     // Unauthenticated Octokit is capped at 60 req/hr per IP. Without this, one
