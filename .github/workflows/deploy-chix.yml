@@ -1,4 +1,4 @@
-# Scales new chix to webp in scaled_chix/, commits them, then deploys to GitHub Pages
+# Scales new chix to webp in scaled_chix/, commits them, then deploys scaled_chix/ to GitHub Pages
 name: Scale and deploy chix to Pages
 
 on:
@@ -68,20 +68,13 @@ jobs:
           git pull --rebase origin main
           git push origin HEAD:main
 
-      - name: Assemble site
-        # Originals stay published so the .jpg URLs stored in past votes keep working.
-        # Names can't collide: scaled copies are all .webp.
-        run: |
-          mkdir -p _site
-          cp chix/* _site/
-          cp scaled_chix/* _site/
-
       - name: Setup Pages
         uses: actions/configure-pages@v6
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v5
         with:
-          path: './_site'
+          # Only the scaled copies are published; originals stay in the repo as sources
+          path: './scaled_chix'
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
