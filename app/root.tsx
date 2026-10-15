@@ -6,7 +6,6 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
-  useLocation,
 } from 'react-router'
 
 import type { Route } from './+types/root'
@@ -28,23 +27,22 @@ export const links: Route.LinksFunction = () => [
   },
   { rel: 'manifest', href: '/site.webmanifest' },
   { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
-  { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
   {
     rel: 'preconnect',
     href: 'https://fonts.gstatic.com',
     crossOrigin: 'anonymous',
   },
+  // Only the faces in use: Plex Mono 400 (body) and 700 (font-bold), Frank Ruhl
+  // Libre 600 (.header/.subheader). Linked here rather than @imported from app.css,
+  // which made the browser fetch app.css before it could discover the fonts.
   {
     rel: 'stylesheet',
-    href: 'https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap',
+    href: 'https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@600&family=IBM+Plex+Mono:wght@400;700&display=swap',
   },
   { rel: 'stylesheet', href: stylesheet },
 ]
 
 export function Layout({ children }: { children: React.ReactNode }) {
-  const homePage = !['results', 'pecking'].includes(
-    useLocation().pathname.split('/')[1]
-  )
   return (
     <html lang="en">
       <head>

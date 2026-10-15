@@ -30,7 +30,7 @@ export function Pagination({
 
   return (
     <div className="flex items-center justify-center px-2 pb-4">
-      <div className="font-sans text-center w-full">{pager}</div>
+      <div className="text-center w-full">{pager}</div>
     </div>
   )
 }

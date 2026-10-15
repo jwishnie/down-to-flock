@@ -1,4 +1,4 @@
-import { getTopVotesByAdjective, type RankResult } from '~/utils/data'
+import { getTopVotesByAdjective } from '~/utils/data'
 import type { Route } from './+types/peckingOrder'
 import { type Word, WordCloud } from '@isoterik/react-word-cloud'
 import { useState, useMemo } from 'react'
@@ -10,7 +10,7 @@ export default function PeckingOrder({
   const nav = useNavigate()
   const selectedWord = adjective || ''
 
-  // Memoize rankingMap to ensure stability for the effect
+  // Group the top chix by adjective; insertion order keeps the query's ranking
   const rankingMap = useMemo(() => {
     return Map.groupBy(
       rankingArray,
@@ -85,9 +85,7 @@ export default function PeckingOrder({
                   <img
                     className="max-w-32 cursor-pointer"
                     src={winning_url}
-                    onClick={(e) => {
-                      nav(`/pecking/${adjective}`)
-                    }}
+                    onClick={() => nav(`/pecking/${adjective}`)}
                   />
                 </div>
                 <div className="flex-1 flex items-center justify-start">
