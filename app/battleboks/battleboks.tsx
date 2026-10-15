@@ -2,9 +2,10 @@ import { useEffect, useRef, useState, type TransitionEvent } from 'react'
 import type { ChickMeta } from '~/utils/data'
 
 // The <button> around each image carries cursor-pointer too: Tailwind v4 gives
-// buttons the default arrow
+// buttons the default arrow. aspect-square reserves the space before the image
+// loads (all chix are square; object-cover absorbs any that are slightly off).
 const bokClass =
-  'p-1 sm:p-0 w-svw sm:w-full cursor-pointer transition delay-75 duration-300 ease-in-out hover:scale-105'
+  'p-1 sm:p-0 w-svw sm:w-full aspect-square object-cover cursor-pointer transition delay-75 duration-300 ease-in-out hover:scale-105'
 
 // The vote goes out when the loser's fade-out ends (~300ms); this is the backstop
 // in case that transition event never arrives

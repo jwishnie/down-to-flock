@@ -38,6 +38,8 @@ export default function PeckingOrder({
     nav(`/pecking/${word.text}`)
   }
 
+  const chickThumbClass = "w-32 aspect-square object-cover"
+
   return (
     <main className="container mx-auto py-8">
       <div className="pb-6">
@@ -72,7 +74,7 @@ export default function PeckingOrder({
             >
               <div className="flex-1 flex items-center justify-end">
                 <img
-                  className="max-w-32"
+                  className={chickThumbClass}
                   src={winning_url}
                   alt={`One of the most ${selectedWord} chickens`}
                 />
@@ -92,7 +94,7 @@ export default function PeckingOrder({
                 <div className="flex-1 flex items-center justify-end">
                   <Link to={`/pecking/${adjective}`} className="cursor-pointer">
                     <img
-                      className="max-w-32"
+                      className={chickThumbClass}
                       src={winning_url}
                       alt={`The most ${adjective} chicken`}
                     />
