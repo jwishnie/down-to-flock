@@ -7,18 +7,18 @@ import { useEffect } from 'react'
 import { redirect, useLocation, useSubmit } from 'react-router'
 import adjectives from '~/adjectives'
 import titles from '~/titles'
-import { db, getChix, iVoted, voteCount, VOTES_TABLE } from '~/utils/data'
+import {
+  type ChickMeta,
+  db,
+  getChix,
+  isNotFound,
+  iVoted,
+  voteCount,
+  VOTES_TABLE,
+} from '~/utils/data'
 import { safeParseInt } from '~/utils/general'
 import bokSound from '~/assets/bok.ogg'
 import { useAudio } from './hook'
-
-// return values are 1s based
-const pickYourBattle = async function (numChix: number) {
-  const [leftIndex, rightIndex] = _sampleSize(_range(1, numChix + 1), 2)
-  const adjective = _sampleSize(adjectives, 1)[0].toLocaleLowerCase()
-
-  return { adjective, leftIndex, rightIndex }
-}
 
 const VALID_ADJECTIVES = new Set(
   adjectives.map((a) => a.toLocaleLowerCase())
@@ -31,7 +31,7 @@ const validateBattle = function (
   adjective: string | undefined,
   left: string | undefined,
   right: string | undefined,
-  numChix: number
+  chix: ChickMeta[]
 ) {
   const [leftIndex, rightIndex] = [left, right].map((e) => safeParseInt(e))
 
@@ -43,7 +43,11 @@ const validateBattle = function (
   // without this the row records a chicken as more <adjective> than itself
   if (leftIndex === rightIndex) return null
   // without this chix[index - 1] is undefined and .src throws a 500
-  if (leftIndex > numChix || rightIndex > numChix) return null
+  if (leftIndex > chix.length || rightIndex > chix.length) return null
+  // a gap in the chix numbering; there's no image to show or vote on
+  if (isNotFound(chix[leftIndex - 1]) || isNotFound(chix[rightIndex - 1])) {
+    return null
+  }
 
   return {
     adjective: adjective.toLocaleLowerCase(),
@@ -52,17 +56,44 @@ const validateBattle = function (
   }
 }
 
+// Always returns a valid battle: it runs every candidate through validateBattle (no
+// NOT_FOUND gaps, no chick against itself), so picking can't drift from what the
+// loader and action accept. `previous` is the battle just voted on: repeating the
+// same pair would leave BattleBoks waiting on a preload that never happens.
+// Indices are 1s based.
+const pickYourBattle = function (
+  chix: ChickMeta[],
+  previous?: { leftIndex: number; rightIndex: number }
+) {
+  // without this the loop below can never find a valid battle and spins forever.
+  // With exactly 2, a swapped pair still differs from `previous`, so it ends.
+  const numFound = chix.filter((c) => !isNotFound(c)).length
+  if (numFound < 2) {
+    throw new Error(`need at least 2 chix to battle, found ${numFound}`)
+  }
+
+  while (true) {
+    const [left, right] = _sampleSize(_range(1, chix.length + 1), 2)
+    const adjective = _sampleSize(adjectives, 1)[0]
+    const battle = validateBattle(adjective, `${left}`, `${right}`, chix)
+    const isRepeat =
+      previous &&
+      battle?.leftIndex === previous.leftIndex &&
+      battle?.rightIndex === previous.rightIndex
+    if (battle && !isRepeat) return battle
+  }
+}
+
 // params are 1s based
 export async function loader({
   params: { adjective, left, right },
 }: Route.LoaderArgs) {
   const chix = await getChix()
-  const numChix = chix.length
 
-  const battle = validateBattle(adjective, left, right, numChix)
+  const battle = validateBattle(adjective, left, right, chix)
   if (!battle) {
     // invalid params, pick a new battle and redirect
-    const { adjective, leftIndex, rightIndex } = await pickYourBattle(numChix)
+    const { adjective, leftIndex, rightIndex } = pickYourBattle(chix)
     return redirect(`/${adjective}/${leftIndex}/${rightIndex}`)
   }
 
@@ -90,10 +121,11 @@ export async function action({
   const vote = (await request.formData()).get('vote')
   const chix = await getChix()
 
-  const battle = validateBattle(adjective, left, right, chix.length)
-  if (!battle) {
+  const battle = validateBattle(adjective, left, right, chix)
+  // without this anything but 'l' (including a missing vote) records a right win
+  if (!battle || (vote !== 'l' && vote !== 'r')) {
     throw Response.json(
-      { message: 'Invalid battle' },
+      { message: 'Invalid vote' },
       {
         status: 400,
         statusText: 'Bad Request',
@@ -125,7 +157,6 @@ export async function action({
     voteCount > 0 &&
     voteCount % PITCH_CF_EVERY === 0
   ) {
-    console.log('Redirecting to CFF page')
     return redirect('/cff')
   }
 
@@ -134,7 +165,7 @@ export async function action({
     adjective: newAdjective,
     leftIndex,
     rightIndex,
-  } = await pickYourBattle(chix.length)
+  } = pickYourBattle(chix, battle)
   return redirect(`/${newAdjective}/${leftIndex}/${rightIndex}`)
 }
 
@@ -149,9 +180,11 @@ export default function Home({
 
   const submit = useSubmit()
   const path = useLocation().pathname
-  const vote = async function (v: boolean) {
+  const vote = function (v: boolean) {
     if ((voteCount + 1) % BOK_EVERY === 0) {
-      await playBok()
+      // Fire and forget: Home stays mounted across battles, so the bok plays on
+      // while the next one loads. A failed bok must not cost the vote.
+      playBok().catch(() => {})
     }
     submit({ vote: v ? 'l' : 'r' }, { action: `${path}`, method: 'post' })
   }

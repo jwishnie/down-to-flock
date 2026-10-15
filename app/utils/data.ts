@@ -111,6 +111,32 @@ const dbMigrationProvider: MigrationProvider = {
           .execute()
       },
     },
+    // Chix are now served as scaled webp copies (see deploy-chix.yml), so new votes
+    // store .webp URLs. Rankings group by URL, so old .jpg rows would otherwise split
+    // each chick into two entries. Case-insensitive for the .JPG/.jpeg originals.
+    '005_webp_urls': {
+      async up(db) {
+        await db
+          .updateTable(VOTES_TABLE)
+          .set({
+            left: sql`regexp_replace("left", '\\.jpe?g$', '.webp', 'i')`,
+            right: sql`regexp_replace("right", '\\.jpe?g$', '.webp', 'i')`,
+          })
+          .where((eb) =>
+            eb.or([
+              eb('left', '~*', '\\.jpe?g$'),
+              eb('right', '~*', '\\.jpe?g$'),
+            ])
+          )
+          .execute()
+        // The cached rankings were built from the old URLs
+        await kv.del(TOP_VOTES_KEY)
+      },
+      async down() {
+        // No-op: the original extension (.jpg, .jpeg or .JPG) isn't recoverable
+        // from the .webp URL. Roll back with a Neon branch/snapshot instead.
+      },
+    },
   }),
 }
 
@@ -136,15 +162,22 @@ export const db = new Kysely<DbSchema>({
   }),
 })
 
-const CHIX_KEY = 'chix-v13'
-const CHIX_FALLBACK_KEY = 'chix-last-known-good-v1'
+// v15: lists now point at scaled webp copies. The fallback key isn't bumped: an older
+// list (gaps filled, full-size originals) is still a fine last resort.
+const CHIX_KEY = 'chix-v15'
+const CHIX_FALLBACK_KEY = 'chix-last-known-good-v2'
 const TOP_VOTES_KEY = 'top-votes-v14'
-const CHIX_PATH = '/repos/jwishnie/down-to-flock/contents/chix'
+// webp copies of chix/, scaled by .github/workflows/deploy-chix.yml
+const CHIX_PATH = '/repos/jwishnie/down-to-flock/contents/scaled_chix'
 const PAGES_PATH = 'https://chix.wishnie.org'
 export type ChickMeta = {
   src: string
   name: string
 }
+
+// Stands in for a missing chixNNN file so every chick stays at index NNN - 1
+export const NOT_FOUND = 'NOT_FOUND'
+export const isNotFound = (chick: ChickMeta) => chick.name === NOT_FOUND
 
 const CHIX_TTL = 60 * 60 * 8 // 8 hrs
 const CHIX_FALLBACK_TTL = 60 * 60 * 24 * 30 // 30 days
@@ -180,10 +213,22 @@ export const getChix = async function (): Promise<ChickMeta[]> {
       throw new Error(`expected an array of chix, got ${typeof data}`)
     }
 
-    const chix = data.map(({ name }: { name: string }) => ({
-      name,
-      src: `${PAGES_PATH}/${name}`,
-    })) as ChickMeta[]
+    // Battle URLs address chix by position, so a chick's position must come from
+    // the number in its file name, not its place in the listing. Otherwise a gap
+    // (chix024 is missing) or a newly added file shifts every chick after it.
+    const chix: ChickMeta[] = []
+    for (const { name } of data as { name: string }[]) {
+      const num = safeParseInt(name.match(/\d+/)?.[0])
+      if (!num) {
+        console.warn(`skipping chick with no number in its name: ${name}`)
+        continue
+      }
+      chix[num - 1] = { name, src: `${PAGES_PATH}/${name}` }
+    }
+    // a plain loop rather than .map, since .map skips holes in a sparse array
+    for (let i = 0; i < chix.length; i++) {
+      chix[i] ??= { name: NOT_FOUND, src: '' }
+    }
 
     await cacheSet(CHIX_KEY, chix, CHIX_TTL)
     await cacheSet(CHIX_FALLBACK_KEY, chix, CHIX_FALLBACK_TTL)

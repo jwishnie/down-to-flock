@@ -6,6 +6,14 @@ const bokClass =
 
 const ANIMATION_DELAY = 425
 
+// Resolves once the image is loaded and decoded, or failed: a broken image
+// shouldn't block the next battle.
+const preload = (src: string) => {
+  const img = new Image()
+  img.src = src
+  return img.decode().catch(() => {})
+}
+
 export function BattleBoks({
   adjective,
   left,
@@ -17,43 +25,34 @@ export function BattleBoks({
   right: ChickMeta
   onSelected: (selected: boolean) => void
 }) {
-  // State to hold valid loaded "current" data (buffers content changes)
-  const [currentAdjective, setCurrentAdjective] = useState(adjective)
-  const [currentLeft, setCurrentLeft] = useState(left)
-  const [currentRight, setCurrentRight] = useState(right)
-  
-  // State for user interaction
+  // The battle on screen. Lags behind props until the next battle's images load.
+  const [shown, setShown] = useState({ adjective, left, right })
   const [selected, setSelected] = useState(undefined as boolean | undefined)
-  const [isPreloading, setIsPreloading] = useState(false)
 
-  // Preload next images and only update "current" state when ready
+  const isLoading =
+    shown.adjective !== adjective ||
+    shown.left.src !== left.src ||
+    shown.right.src !== right.src
+
   useEffect(() => {
-    if (left.src !== currentLeft.src || right.src !== currentRight.src) {
-      setIsPreloading(true)
-      const img1 = new Image()
-      const img2 = new Image()
-      let loaded = 0
-      const onAllLoaded = () => {
-        loaded++
-        if (loaded === 2) {
-          // Both ready: Swap content and reset selection
-          setCurrentAdjective(adjective)
-          setCurrentLeft(left)
-          setCurrentRight(right)
-          setSelected(undefined)
-          setIsPreloading(false)
-        }
-      }
-
-      img1.onload = onAllLoaded
-      img1.onerror = onAllLoaded
-      img2.onload = onAllLoaded
-      img2.onerror = onAllLoaded
-
-      img1.src = left.src
-      img2.src = right.src
+    // Covers mount, the swap below, and props returning to the shown battle
+    // (quick back/forward): in each case the shown battle is fresh and unvoted.
+    if (!isLoading) {
+      setSelected(undefined)
+      return
     }
-  }, [left, right, adjective])
+
+    // Cancelled if props change again first, so a slow, stale preload can't
+    // swap in the wrong battle.
+    let cancelled = false
+    Promise.all([left.src, right.src].map(preload)).then(() => {
+      if (!cancelled) setShown({ adjective, left, right })
+    })
+    return () => {
+      cancelled = true
+    }
+    // srcs rather than the objects, so only a real change of chix re-runs this
+  }, [isLoading, adjective, left.src, right.src])
 
   const onSelectedRef = useRef(onSelected)
   useEffect(() => { onSelectedRef.current = onSelected }, [onSelected])
@@ -64,12 +63,17 @@ export function BattleBoks({
     return () => clearTimeout(id)
   }, [selected])
 
+  // Ignore clicks while a vote is pending or the next battle is loading
+  const select = (v: boolean) => {
+    if (selected === undefined && !isLoading) setSelected(v)
+  }
+
   const lselected = selected === true
   const rselected = selected === false
   
   // Outgoing animations
   const fadeOut = 'transition-opacity opacity-0 ease-in duration-300'
-  const ending = isPreloading ? 'transition-opacity opacity-0 ease-in duration-500' : ''
+  const ending = isLoading ? 'transition-opacity opacity-0 ease-in duration-500' : ''
 
   const rslideIn = 'transition-transform max-sm:-translate-y-full sm:-translate-x-1/2'
   const lslideIn = 'sm:transition-transform sm:translate-x-1/2'
@@ -79,10 +83,10 @@ export function BattleBoks({
       
       {/* Header updates with the content */}
       <div 
-        key={`header-${currentAdjective}`} 
+        key={`header-${shown.adjective}`} 
         className={`header flex items-center justify-center pt-8 animate-fade-in ${ending}`}
       >
-        <div className="text-center">Which is more {currentAdjective}?</div>
+        <div className="text-center">Which is more {shown.adjective}?</div>
       </div>
 
       <main className="flex flex-wrap justify-center gap-x-4 pt-8 pb-4">
@@ -93,11 +97,11 @@ export function BattleBoks({
           } ${ending}`}
         >
           {/* Key change on wrapper forces remount -> triggers animation */}
-          <div key={currentLeft.src} className="animate-fade-in">
+          <div key={shown.left.src} className="animate-fade-in">
             <img
-              src={currentLeft.src}
+              src={shown.left.src}
               className={`${bokClass}`}
-              onClick={() => setSelected(true)}
+              onClick={() => select(true)}
             />
           </div>
         </div>
@@ -108,11 +112,11 @@ export function BattleBoks({
             rselected ? rslideIn : lselected ? fadeOut : ''
           } ${ending}`}
         >
-          <div key={currentRight.src} className="animate-fade-in">
+          <div key={shown.right.src} className="animate-fade-in">
              <img
-              src={currentRight.src}
+              src={shown.right.src}
               className={`${bokClass}`}
-              onClick={() => setSelected(false)}
+              onClick={() => select(false)}
             />
           </div>
         </div>
