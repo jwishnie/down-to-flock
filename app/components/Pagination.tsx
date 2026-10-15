@@ -18,9 +18,9 @@ export function Pagination({
 
   const pager = _range(1, numPages + 1).map((n, idx) => (
     <span key={n}>
-      {!!idx ? ' | ' : ''}
+      {idx > 0 && ' | '}
       {n === currentPage ? (
-        n
+        <span aria-current="page">{n}</span>
       ) : (
         <Link className="cursor-pointer" to={hrefFor(n)}>
           {n}

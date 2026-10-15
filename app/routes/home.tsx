@@ -1,9 +1,9 @@
-import { BattleBoks } from '~/battleboks/battleboks'
+import { BattleBoks, type Side } from '~/battleboks/battleboks'
 import type { Route } from './+types/home'
 
 import _range from 'lodash-es/range'
 import _sampleSize from 'lodash-es/sampleSize'
-import { redirect, useLocation, useSubmit } from 'react-router'
+import { redirect, useSubmit } from 'react-router'
 import adjectives from '~/adjectives'
 import {
   type ChickMeta,
@@ -16,7 +16,10 @@ import {
 } from '~/utils/data'
 import { safeParseInt } from '~/utils/general'
 import bokSound from '~/assets/bok.ogg'
-import { useAudio } from './hook'
+
+// Created once when this module loads in the browser (Audio doesn't exist during
+// SSR), so the sound has preloaded by the time the first bok plays
+const bok = typeof Audio === 'undefined' ? null : new Audio(bokSound)
 
 const VALID_ADJECTIVES = new Set(
   adjectives.map((a) => a.toLocaleLowerCase())
@@ -175,23 +178,22 @@ export async function action({
 export default function Home({
   loaderData: { adjective, left, right, voteCount },
 }: Route.ComponentProps) {
-  const { play: playBok } = useAudio(bokSound)
-
   const submit = useSubmit()
-  const path = useLocation().pathname
-  const vote = function (v: boolean) {
-    if ((voteCount + 1) % BOK_EVERY === 0) {
-      // Fire and forget: Home stays mounted across battles, so the bok plays on
-      // while the next one loads. A failed bok must not cost the vote.
-      playBok().catch(() => {})
+  const vote = (side: Side) => {
+    if (bok && (voteCount + 1) % BOK_EVERY === 0) {
+      // Fire and forget: the bok plays on while the next battle loads. Rewound so
+      // a bok that's still playing starts over. A failed bok must not cost the vote.
+      bok.currentTime = 0
+      bok.play().catch(() => {})
     }
-    submit({ vote: v ? 'l' : 'r' }, { action: `${path}`, method: 'post' })
+    // No action option: it defaults to the current URL, this battle's route
+    submit({ vote: side }, { method: 'post' })
   }
   return (
     <div>
       <div className="header flex items-center justify-center px-6">
           <BattleBoks
-            adjective={adjective.toLocaleLowerCase()}
+            adjective={adjective}
             left={left}
             right={right}
             onSelected={vote}
@@ -199,18 +201,18 @@ export default function Home({
       </div>
       <div className="flex items-center justify-center pb-3">
         <a className="text-sm" href="https://www.chicken.pics/about">
-          <span>About</span>
+          About
         </a>
         &nbsp;|&nbsp;
         <a
           className="text-sm"
           href="mailto:squawk@chicken.pics?subject=cluk%20cluk%20adjective%20delivery%21"
         >
-          <span>Suggest an adjective or just say hello</span>
+          Suggest an adjective or just say hello
         </a>
         &nbsp;|&nbsp;
         <a className="text-sm" href="https://www.chicken.pics/store">
-          <span>Bok Buys!</span>
+          Bok Buys!
         </a>
       </div>
     </div>

@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState, type TransitionEvent } from 'react'
 import type { ChickMeta } from '~/utils/data'
 
+export type Side = 'l' | 'r'
+
 // The <button> around each image carries cursor-pointer too: Tailwind v4 gives
 // buttons the default arrow. aspect-square reserves the space before the image
 // loads (all chix are square; object-cover absorbs any that are slightly off).
@@ -34,23 +36,29 @@ export function BattleBoks({
   adjective: string
   left: ChickMeta
   right: ChickMeta
-  onSelected: (selected: boolean) => void
+  onSelected: (side: Side) => void
 }) {
   // The battle on screen. Lags behind props until the next battle's images load.
   const [shown, setShown] = useState({ adjective, left, right })
-  const [selected, setSelected] = useState(undefined as boolean | undefined)
+  const [selected, setSelected] = useState<Side>()
 
   const isLoading =
     shown.adjective !== adjective ||
     shown.left.src !== left.src ||
     shown.right.src !== right.src
 
+  // Props back on the shown battle after a vote (quick back/forward): nothing will
+  // swap in, so clear the selection here. Adjusted during render rather than in an
+  // effect, so there's no extra render with the stale selection.
+  const battleKey = `${adjective}|${left.src}|${right.src}`
+  const [prevBattleKey, setPrevBattleKey] = useState(battleKey)
+  if (battleKey !== prevBattleKey) {
+    setPrevBattleKey(battleKey)
+    if (!isLoading) setSelected(undefined)
+  }
+
   useEffect(() => {
-    // Mount, or props back on the shown battle (quick back/forward)
-    if (!isLoading) {
-      setSelected(undefined)
-      return
-    }
+    if (!isLoading) return
 
     // Cancelled if props change again first, so a slow, stale preload can't
     // swap in the wrong battle.
@@ -65,36 +73,37 @@ export function BattleBoks({
     return () => {
       cancelled = true
     }
-    // srcs rather than the objects, so only a real change of chix re-runs this
-  }, [isLoading, adjective, left.src, right.src])
+  }, [isLoading, adjective, left, right])
 
-  // Resolves the pending vote's fade; set per click, called by onFadeOutDone
-  const fadeDone = useRef<() => void>(undefined)
+  // The vote waiting on the loser's fade. Resolving sends it; resolving again is a
+  // no-op, so the fade and the fallback timer can't both vote.
+  const pendingVote = useRef<{ resolve: () => void; timer: number }>(undefined)
+
+  // Unmounted mid-fade (navigated away): drop the vote rather than let the
+  // fallback timer submit it from a page the user has left
+  useEffect(() => () => clearTimeout(pendingVote.current?.timer), [])
 
   // Ignore clicks while a vote is pending or the next battle is loading
-  const select = (v: boolean) => {
-    if (selected !== undefined || isLoading) return
-    setSelected(v)
+  const select = (side: Side) => {
+    if (selected || isLoading) return
+    setSelected(side)
     const { promise, resolve } = Promise.withResolvers<void>()
-    fadeDone.current = resolve
-    // Whichever comes first; race settles once, so the vote can't fire twice
-    Promise.race([
-      promise,
-      new Promise((r) => setTimeout(r, FADE_FALLBACK_MS)),
-    ]).then(() => onSelected(v))
+    const timer = window.setTimeout(resolve, FADE_FALLBACK_MS)
+    pendingVote.current = { resolve, timer }
+    promise.then(() => {
+      clearTimeout(timer)
+      onSelected(side)
+    })
   }
 
   // The loser's fade runs at every breakpoint, unlike the winner's slide (no left
   // slide on narrow screens), so its end is what releases the vote. Ignores
   // transitions bubbling up from the img (hover:scale) and other properties.
   const onFadeOutDone =
-    (fadesWhen: boolean) => (e: TransitionEvent<HTMLDivElement>) => {
+    (fadesWhen: Side) => (e: TransitionEvent<HTMLDivElement>) => {
       if (e.target !== e.currentTarget || e.propertyName !== 'opacity') return
-      if (selected === fadesWhen) fadeDone.current?.()
+      if (selected === fadesWhen) pendingVote.current?.resolve()
     }
-
-  const lselected = selected === true
-  const rselected = selected === false
 
   return (
     <div>
@@ -109,17 +118,17 @@ export function BattleBoks({
       <main className="flex flex-wrap justify-center gap-x-4 pt-8 pb-4">
         <div
           className={`flex-none sm:flex-1 ${
-            lselected ? lslideIn : rselected ? fadeOut : ''
+            selected === 'l' ? lslideIn : selected === 'r' ? fadeOut : ''
           }`}
-          onTransitionEnd={onFadeOutDone(false)}
-          onTransitionCancel={onFadeOutDone(false)}
+          onTransitionEnd={onFadeOutDone('r')}
+          onTransitionCancel={onFadeOutDone('r')}
         >
           {/* Key change on wrapper forces remount -> triggers animation */}
           <div key={shown.left.src} className="animate-fade-in">
             <button
               type="button"
               className="block w-full cursor-pointer"
-              onClick={() => select(true)}
+              onClick={() => select('l')}
             >
               <img
                 src={shown.left.src}
@@ -132,16 +141,16 @@ export function BattleBoks({
 
         <div
           className={`flex-none sm:flex-1 ${
-            rselected ? rslideIn : lselected ? fadeOut : ''
+            selected === 'r' ? rslideIn : selected === 'l' ? fadeOut : ''
           }`}
-          onTransitionEnd={onFadeOutDone(true)}
-          onTransitionCancel={onFadeOutDone(true)}
+          onTransitionEnd={onFadeOutDone('l')}
+          onTransitionCancel={onFadeOutDone('l')}
         >
           <div key={shown.right.src} className="animate-fade-in">
             <button
               type="button"
               className="block w-full cursor-pointer"
-              onClick={() => select(false)}
+              onClick={() => select('r')}
             >
               <img
                 src={shown.right.src}

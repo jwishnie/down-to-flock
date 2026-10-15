@@ -8,19 +8,19 @@ import {
   useNavigate,
 } from 'react-router'
 
+const chickThumbClass = 'w-32 aspect-square object-cover'
+
 export default function PeckingOrder({
   loaderData: { rankingArray },
   params: { adjective },
 }: Route.ComponentProps) {
   const nav = useNavigate()
-  const selectedWord = adjective || ''
+  // Adjectives are stored lowercase, so /pecking/Mindful still finds them
+  const selectedWord = adjective?.toLocaleLowerCase()
 
   // Group the top chix by adjective; insertion order keeps the query's ranking
   const rankingMap = useMemo(() => {
-    return Map.groupBy(
-      rankingArray,
-      (r: (typeof rankingArray)[0]) => r.adjective
-    )
+    return Map.groupBy(rankingArray, (r) => r.adjective)
   }, [rankingArray])
 
   // Stable across adjective clicks because shouldRevalidate keeps rankingArray, so
@@ -37,8 +37,6 @@ export default function PeckingOrder({
   const onWordClick = (word: Word) => {
     nav(`/pecking/${word.text}`)
   }
-
-  const chickThumbClass = "w-32 aspect-square object-cover"
 
   return (
     <main className="container mx-auto py-8">

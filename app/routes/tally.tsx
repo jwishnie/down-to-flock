@@ -3,10 +3,11 @@ import { getVoteCount, getVotes } from '~/utils/data'
 import { safeParseInt } from '~/utils/general'
 import type { Route } from './+types/tally'
 import { Pagination } from '~/components/Pagination'
-import React from 'react'
+import { Fragment } from 'react'
 
 const ROWS_PER_PAGE = 25
 const MAX_PAGES = 30
+const resultsHref = (page: number) => `/results/${page}`
 export async function loader({ params: { page } }: Route.LoaderArgs) {
   const current = safeParseInt(page)
   if (!current || current < 1 || current > MAX_PAGES) {
@@ -18,10 +19,7 @@ export async function loader({ params: { page } }: Route.LoaderArgs) {
     getVoteCount(),
     getVotes(current, ROWS_PER_PAGE),
   ])
-  const numPages = Math.min(
-    Math.ceil(totalVotes / ROWS_PER_PAGE),
-    MAX_PAGES
-  )
+  const numPages = Math.min(Math.ceil(totalVotes / ROWS_PER_PAGE), MAX_PAGES)
 
   if (numPages === 0) {
     return { totalVotes, votes: [], numPages: 0, currentPage: 0 }
@@ -43,30 +41,27 @@ export default function Tally({
   loaderData: { totalVotes, votes, numPages, currentPage },
 }: Route.ComponentProps) {
   // votes is already exactly one page — the DB did the slicing.
-  const chickGrid = votes.length
-    ? votes
-        .map(({ adjective, left, right, left_wins, id }) => (
-          <React.Fragment key={id}>
-            <div className="flex justify-end">
-              <img
-                alt="Chicken 1"
-                className="w-24 sm:w-36 lg:w-64 aspect-square object-cover"
-                src={left_wins ? left : right}
-              />
-            </div>
-            <div className="text-center flex items-center justify-center h-full">
-              is more {adjective} than
-            </div>
-            <div className="flex justify-start">
-              <img
-                alt="Chicken 2"
-                className="w-24 sm:w-36 lg:w-64 aspect-square object-cover"
-                src={left_wins ? right : left}
-              />
-            </div>
-          </React.Fragment>
-        ))
-    : ''
+  const chickGrid = votes.map(({ adjective, left, right, left_wins, id }) => (
+    <Fragment key={id}>
+      <div className="flex justify-end">
+        <img
+          alt={`The more ${adjective} chicken`}
+          className="w-24 sm:w-36 lg:w-64 aspect-square object-cover"
+          src={left_wins ? left : right}
+        />
+      </div>
+      <div className="text-center flex items-center justify-center h-full">
+        is more {adjective} than
+      </div>
+      <div className="flex justify-start">
+        <img
+          alt={`The less ${adjective} chicken`}
+          className="w-24 sm:w-36 lg:w-64 aspect-square object-cover"
+          src={left_wins ? right : left}
+        />
+      </div>
+    </Fragment>
+  ))
   return (
     <div className="px-2">
       <div className="header flex items-center justify-center pt-6">
@@ -78,7 +73,7 @@ export default function Tally({
       <Pagination
         currentPage={currentPage}
         numPages={numPages}
-        hrefFor={(n) => `/results/${n}`}
+        hrefFor={resultsHref}
       />
       <div className="grid grid-cols-[minmax(min-content,1fr)_minmax(min-content,1fr)_minmax(min-content,1fr)] mx-auto gap-4 pb-3">
         {chickGrid}
@@ -86,7 +81,7 @@ export default function Tally({
       <Pagination
         currentPage={currentPage}
         numPages={numPages}
-        hrefFor={(n) => `/results/${n}`}
+        hrefFor={resultsHref}
       />
     </div>
   )

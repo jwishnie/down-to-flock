@@ -1,3 +1,4 @@
+import { Link } from 'react-router'
 // import splash from '~/assets/tavie-and-me.jpg'
 import splash from '~/assets/tavie-chick.jpg'
 import cff from '~/assets/cff.png'
@@ -74,7 +75,7 @@ export default function CFF() {
           ).
         </div>
         <div className="text-justify ">
-          Thanks for reading. <a href="/">Back to the chickens!</a>
+          Thanks for reading. <Link to="/">Back to the chickens!</Link>
         </div>
       </div>
     </main>
