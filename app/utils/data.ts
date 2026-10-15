@@ -166,7 +166,7 @@ export const db = new Kysely<DbSchema>({
 // list (gaps filled, full-size originals) is still a fine last resort.
 const CHIX_KEY = 'chix-v15'
 const CHIX_FALLBACK_KEY = 'chix-last-known-good-v2'
-const TOP_VOTES_KEY = 'top-votes-v14'
+const TOP_VOTES_KEY = 'top-votes-v15'
 // webp copies of chix/, scaled by .github/workflows/deploy-chix.yml
 const CHIX_PATH = '/repos/jwishnie/down-to-flock/contents/scaled_chix'
 const PAGES_PATH = 'https://chix.wishnie.org'
@@ -281,11 +281,15 @@ export interface RankResult {
   vote_count: number
 }
 
+// Adjectives in the pecking-order word cloud. Only these are loaded, ranked by their
+// top chick's vote count.
+const TOP_ADJECTIVES = 250
+
 export const getTopVotesByAdjective = async function (): Promise<RankResult[]> {
   const fromStore = await cacheGet<RankResult[]>(TOP_VOTES_KEY)
   if (fromStore) return fromStore
 
-  const topVotes = await db
+  const rankedAdjectives = db
     .selectFrom(
       db
         .selectFrom(VOTES_TABLE)
@@ -324,8 +328,24 @@ export const getTopVotesByAdjective = async function (): Promise<RankResult[]> {
         ])
         .as('ranked_votes')
     )
-    .select(['adjective', 'winning_url', 'vote_count'])
+    .select([
+      'adjective',
+      'winning_url',
+      'vote_count',
+      'max_votes',
+      // Its own layer: a window can't nest inside the max_votes window above.
+      // adjective breaks max_votes ties, so each adjective gets a distinct rank.
+      sql<number>`
+        DENSE_RANK() OVER (ORDER BY max_votes DESC, adjective)
+      `.as('adjective_rank'),
+    ])
     .where('rank', '<=', 10)
+    .as('top_votes')
+
+  const topVotes = await db
+    .selectFrom(rankedAdjectives)
+    .select(['adjective', 'winning_url', 'vote_count'])
+    .where('adjective_rank', '<=', TOP_ADJECTIVES)
     .orderBy(sql`max_votes DESC, adjective, vote_count DESC, winning_url`)
     .execute()
 

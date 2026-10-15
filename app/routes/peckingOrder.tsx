@@ -1,11 +1,12 @@
 import { getTopVotesByAdjective } from '~/utils/data'
 import type { Route } from './+types/peckingOrder'
 import { type Word, WordCloud } from '@isoterik/react-word-cloud'
-import { useState, useMemo } from 'react'
-import { useNavigate } from 'react-router'
+import { useMemo } from 'react'
+import { type ShouldRevalidateFunctionArgs, useNavigate } from 'react-router'
 
 export default function PeckingOrder({
-  loaderData: { rankingArray, adjective },
+  loaderData: { rankingArray },
+  params: { adjective },
 }: Route.ComponentProps) {
   const nav = useNavigate()
   const selectedWord = adjective || ''
@@ -18,14 +19,16 @@ export default function PeckingOrder({
     )
   }, [rankingArray])
 
-  // Initialize words ONLY ONCE when component mounts (per session)
-  // This ignores subsequent updates to rankingArray/rankingMap during navigation
-  const [words] = useState(() => {
-    return [...rankingMap.values()].slice(0, 250).map((ranks) => ({
-      text: ranks[0].adjective,
-      value: ranks[0].vote_count * 8,
-    }))
-  })
+  // Stable across adjective clicks because shouldRevalidate keeps rankingArray, so
+  // the cloud doesn't re-layout
+  const words = useMemo(
+    () =>
+      [...rankingMap.values()].map((ranks) => ({
+        text: ranks[0].adjective,
+        value: ranks[0].vote_count * 8,
+      })),
+    [rankingMap]
+  )
 
   const onWordClick = (word: Word) => {
     nav(`/pecking/${word.text}`)
@@ -102,7 +105,19 @@ export default function PeckingOrder({
   )
 }
 
-export async function loader({ params: { adjective } }: Route.LoaderArgs) {
-  const rankingArray = await getTopVotesByAdjective()
-  return { rankingArray, adjective }
+export async function loader() {
+  return { rankingArray: await getTopVotesByAdjective() }
+}
+
+// The loader has every adjective's rankings, so moving between /pecking pages
+// (clicking a word, "back to the mostests") needs no refetch. The selected adjective
+// comes from params, not loader data, so it still updates.
+export function shouldRevalidate({
+  currentUrl,
+  nextUrl,
+  defaultShouldRevalidate,
+}: ShouldRevalidateFunctionArgs) {
+  const isPecking = (url: URL) => url.pathname.startsWith('/pecking')
+  if (isPecking(currentUrl) && isPecking(nextUrl)) return false
+  return defaultShouldRevalidate
 }
