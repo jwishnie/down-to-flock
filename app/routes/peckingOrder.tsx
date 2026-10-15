@@ -71,7 +71,11 @@ export default function PeckingOrder({
               className="flex items-center gap-3 mb-5"
             >
               <div className="flex-1 flex items-center justify-end">
-                <img className="max-w-32 cursor-pointer" src={winning_url} />
+                <img
+                  className="max-w-32"
+                  src={winning_url}
+                  alt={`One of the most ${selectedWord} chickens`}
+                />
               </div>
               <div className="flex-1 flex items-center justify-start">
                 <span>{vote_count} appraisals</span>
