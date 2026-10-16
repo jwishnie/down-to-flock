@@ -70,19 +70,22 @@ export default function Tally({
       <div className="subheader flex items-center justify-center pb-6">
         ~{(Math.floor(totalVotes / 10) * 10).toLocaleString()} appraisals
       </div>
-      <Pagination
-        currentPage={currentPage}
-        numPages={numPages}
-        hrefFor={resultsHref}
-      />
-      <div className="grid grid-cols-[minmax(min-content,1fr)_minmax(min-content,1fr)_minmax(min-content,1fr)] mx-auto gap-4 pb-3">
-        {chickGrid}
+      {/* Shrink-wrapped to the widest child, so the grid is never narrower than the pager */}
+      <div className="w-fit max-w-full mx-auto">
+        <Pagination
+          currentPage={currentPage}
+          numPages={numPages}
+          hrefFor={resultsHref}
+        />
+        <div className="grid grid-cols-[auto_minmax(min-content,1fr)_auto] mx-auto gap-4 pb-3">
+          {chickGrid}
+        </div>
+        <Pagination
+          currentPage={currentPage}
+          numPages={numPages}
+          hrefFor={resultsHref}
+        />
       </div>
-      <Pagination
-        currentPage={currentPage}
-        numPages={numPages}
-        hrefFor={resultsHref}
-      />
     </div>
   )
 }
