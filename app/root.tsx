@@ -8,15 +8,15 @@ import {
   ScrollRestoration,
 } from 'react-router'
 
-import _sample from 'lodash-es/sample'
 import type { Route } from './+types/root'
 import stylesheet from './app.css?url'
 import titles from './titles'
+import { sample } from './utils/general'
 
 // Picks the page title. Root loaders re-run after actions, so each vote gets a
 // fresh title, but not on plain navigations between pages.
 export async function loader() {
-  return { title: _sample(titles) }
+  return { title: sample(titles) }
 }
 
 // Child routes don't export meta, so this applies to every page. loaderData is

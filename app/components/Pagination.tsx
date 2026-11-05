@@ -1,4 +1,3 @@
-import _range from 'lodash-es/range'
 import { Link } from 'react-router'
 
 interface PaginationProps {
@@ -16,7 +15,7 @@ export function Pagination({
     return null
   }
 
-  const pager = _range(1, numPages + 1).map((n, idx) => (
+  const pager = Array.from({ length: numPages }, (_, i) => i + 1).map((n, idx) => (
     <span key={n}>
       {idx > 0 && ' | '}
       {n === currentPage ? (

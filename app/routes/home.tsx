@@ -1,8 +1,6 @@
 import { BattleBoks, type Side } from '~/battleboks/battleboks'
 import type { Route } from './+types/home'
 
-import _range from 'lodash-es/range'
-import _sampleSize from 'lodash-es/sampleSize'
 import { redirect, useSubmit } from 'react-router'
 import adjectives from '~/adjectives'
 import {
@@ -14,7 +12,7 @@ import {
   voteCount,
   VOTES_TABLE,
 } from '~/utils/data'
-import { safeParseInt } from '~/utils/general'
+import { safeParseInt, sample, sampleTwoInts } from '~/utils/general'
 import bokSound from '~/assets/bok.ogg'
 
 // Created once when this module loads in the browser (Audio doesn't exist during
@@ -74,8 +72,8 @@ const pickYourBattle = function (
   }
 
   while (true) {
-    const [left, right] = _sampleSize(_range(1, chix.length + 1), 2)
-    const adjective = _sampleSize(adjectives, 1)[0]
+    const [left, right] = sampleTwoInts(1, chix.length)
+    const adjective = sample(adjectives)
     const battle = validateBattle(adjective, `${left}`, `${right}`, chix)
     const isRepeat =
       previous &&
