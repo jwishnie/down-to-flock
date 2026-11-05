@@ -12,7 +12,7 @@ import {
   voteCount,
   VOTES_TABLE,
 } from '~/utils/data'
-import { safeParseInt, sample, sampleTwoInts } from '~/utils/general'
+import { safeParseInt, sample } from '~/utils/general'
 import bokSound from '~/assets/bok.ogg'
 
 // Created once when this module loads in the browser (Audio doesn't exist during
@@ -72,7 +72,10 @@ const pickYourBattle = function (
   }
 
   while (true) {
-    const [left, right] = sampleTwoInts(1, chix.length)
+    const [left, right] = sample(
+      Array.from({ length: chix.length }, (_, i) => i + 1),
+      2,
+    )
     const adjective = sample(adjectives)
     const battle = validateBattle(adjective, `${left}`, `${right}`, chix)
     const isRepeat =
