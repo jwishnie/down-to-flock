@@ -77,7 +77,7 @@ export default function Tally({
           numPages={numPages}
           hrefFor={resultsHref}
         />
-        <div className="grid grid-cols-[auto_minmax(min-content,1fr)_auto] mx-auto gap-4 pb-3">
+        <div className="grid grid-cols-[auto_auto_auto] justify-center gap-x-5 gap-y-4 pb-3">
           {chickGrid}
         </div>
         <Pagination
